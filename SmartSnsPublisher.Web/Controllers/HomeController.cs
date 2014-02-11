@@ -26,5 +26,10 @@ namespace SmartSnsPublisher.Web.Controllers
 
             return View();
         }
+
+        public ActionResult Callback(string code, string state = "")
+        {
+            return Content(code);
+        }
     }
 }
