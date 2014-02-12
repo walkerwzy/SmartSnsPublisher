@@ -66,7 +66,8 @@ namespace SmartSnsPublisher.Web.Controllers
         [AllowAnonymous]
         public ActionResult Register()
         {
-            return View();
+            return Content("not support yet");
+            //return View();
         }
 
         //
@@ -76,23 +77,25 @@ namespace SmartSnsPublisher.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Register(RegisterViewModel model)
         {
-            if (ModelState.IsValid)
-            {
-                var user = new ApplicationUser() { UserName = model.UserName };
-                var result = await UserManager.CreateAsync(user, model.Password);
-                if (result.Succeeded)
-                {
-                    await SignInAsync(user, isPersistent: false);
-                    return RedirectToAction("Index", "Home");
-                }
-                else
-                {
-                    AddErrors(result);
-                }
-            }
+            await Task.Run(()=>{});
+            return Content("not support yet");
+            //if (ModelState.IsValid)
+            //{
+            //    var user = new ApplicationUser() { UserName = model.UserName };
+            //    var result = await UserManager.CreateAsync(user, model.Password);
+            //    if (result.Succeeded)
+            //    {
+            //        await SignInAsync(user, isPersistent: false);
+            //        return RedirectToAction("Index", "Home");
+            //    }
+            //    else
+            //    {
+            //        AddErrors(result);
+            //    }
+            //}
 
-            // 如果我们进行到这一步时某个地方出错，则重新显示表单
-            return View(model);
+            //// 如果我们进行到这一步时某个地方出错，则重新显示表单
+            //return View(model);
         }
 
         //

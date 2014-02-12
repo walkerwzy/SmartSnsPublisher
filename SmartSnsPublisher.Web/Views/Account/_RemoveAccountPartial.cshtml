@@ -2,7 +2,7 @@
 
 @if (Model.Count > 0)
 {
-    <h4>已注册的登录名</h4>
+    <h4>Registered Accounts</h4>
     <table class="table">
         <tbody>
             @foreach (var account in Model)
@@ -18,7 +18,7 @@
                             <div>
                                 @Html.Hidden("loginProvider", account.LoginProvider)
                                 @Html.Hidden("providerKey", account.ProviderKey)
-                                <input type="submit" class="btn btn-default" value="删除" title="从你的帐户中删除此 @account.LoginProvider 登录名" />
+                                <input type="submit" class="btn btn-default" value="Delete" title="Delete your account from @account.LoginProvider" />
                             </div>
                             }
                         }
