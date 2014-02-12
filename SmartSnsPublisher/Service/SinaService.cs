@@ -31,7 +31,7 @@ namespace SmartSnsPublisher.Service
             {
                 if (string.IsNullOrEmpty(_appkey))
                 {
-                    _appkey = ConfigurationManager.AppSettings["appkey:sina"];
+                    _appkey = ConfigurationManager.AppSettings["app:sina:key"];
                 }
                 return _appkey;
             }
