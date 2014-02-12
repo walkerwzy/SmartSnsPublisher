@@ -3,11 +3,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using SmartSnsPublisher.Web.Repository;
 
 namespace SmartSnsPublisher.Web.Controllers
 {
     public class HomeController : Controller
     {
+        private readonly SiteInfoRepository _repository;
+
+        public HomeController()
+        {
+            _repository = new SiteInfoRepository();
+        }
+
         [Authorize]
         public ActionResult Index()
         {
