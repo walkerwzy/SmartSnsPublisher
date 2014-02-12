@@ -37,6 +37,9 @@ x64/
 *.vssscc
 .builds
 
+#localDB files
+[Aa]pp_[Dd]ata/
+
 # Visual C++ cache files
 ipch/
 *.aps
