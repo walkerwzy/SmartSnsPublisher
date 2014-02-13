@@ -4,6 +4,7 @@ using System.IO;
 using System.Net;
 using System.Text;
 using SmartSnsPublisher.Entity;
+using SmartSnsPublisher.Utility;
 
 namespace SmartSnsPublisher.Utility
 {
@@ -33,17 +34,17 @@ namespace SmartSnsPublisher.Utility
         /// <param name="url">请求地址</param>
         /// <param name="parameters">用于构造请求参数的键值对字典</param>
         /// <returns>HTTP响应</returns>
-        public static string DoGet(string url, IDictionary<string, string> parameters)
+        public static string DoGet(string url, IDictionary<string, object> parameters)
         {
             if (parameters != null && parameters.Count > 0)
             {
                 if (url.Contains("?"))
                 {
-                    url = url + "&" + BuildQuery(parameters);
+                    url = url + "&" + parameters.ToQueryString();
                 }
                 else
                 {
-                    url = url + "?" + BuildQuery(parameters);
+                    url = url + "?" + parameters.ToQueryString();
                 }
             }
             return DoGet(url);
@@ -55,9 +56,9 @@ namespace SmartSnsPublisher.Utility
         /// <param name="url">请求地址</param>
         /// <param name="parameters">请求参数，用于构建请求体的健值对字典</param>
         /// <returns>HTTP响应</returns>
-        public static string DoPost(string url, IDictionary<string, string> parameters)
+        public static string DoPost(string url, IDictionary<string, object> parameters)
         {
-            return DoPost(url, BuildQuery(parameters));
+            return DoPost(url, parameters.ToQueryString());
         }
 
         /// <summary>
@@ -89,7 +90,7 @@ namespace SmartSnsPublisher.Utility
         /// <param name="textParams">请求文本参数</param>
         /// <param name="fileInfo">请求文件参数</param>
         /// <returns>HTTP响应</returns>
-        public static string DoPost(string url, IDictionary<string, string> textParams, IDictionary<string, FileInfo> fileInfo)
+        public static string DoPost(string url, IDictionary<string, object> textParams, IDictionary<string, FileInfo> fileInfo)
         {
             // 如果没有文件参数，则走普通POST请求
             if (fileInfo == null || fileInfo.Count == 0)
@@ -108,7 +109,7 @@ namespace SmartSnsPublisher.Utility
 
             // 组装文本请求参数
             const string textTemplate = "Content-Disposition:form-data;name=\"{0}\"\r\nContent-Type:text/plain\r\n\r\n{1}";
-            IEnumerator<KeyValuePair<string, string>> textEnum = textParams.GetEnumerator();
+            IEnumerator<KeyValuePair<string, object>> textEnum = textParams.GetEnumerator();
             while (textEnum.MoveNext())
             {
                 string textEntry = string.Format(textTemplate, textEnum.Current.Key, textEnum.Current.Value);
@@ -186,42 +187,6 @@ namespace SmartSnsPublisher.Utility
 
             return result.ToString();
         }
-
-        #region helper
-
-        /// <summary>
-        /// 组装普通文本请求参数。
-        /// </summary>
-        /// <param name="parameters">Key-Value形式请求参数字典</param>
-        /// <returns>URL编码后的请求数据</returns>
-        private static string BuildQuery(IEnumerable<KeyValuePair<string, string>> parameters)
-        {
-            StringBuilder postData = new StringBuilder();
-            bool hasParam = false;
-
-            IEnumerator<KeyValuePair<string, string>> dem = parameters.GetEnumerator();
-            while (dem.MoveNext())
-            {
-                string name = dem.Current.Key;
-                string value = dem.Current.Value;
-                // 忽略参数名或参数值为空的参数
-                if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(value)) continue;
-                if (hasParam)
-                {
-                    postData.Append("&");
-                }
-
-                postData.Append(name);
-                postData.Append("=");
-                postData.Append(Uri.EscapeDataString(value));
-                hasParam = true;
-            }
-
-            return postData.ToString();
-        }
-
-        #endregion
-
 
         public static HttpWebRequest GetWebRequest(string url, string method = "GET", bool keepAlive = true, int timeout = 100000, bool expect100Continue = false)
         {

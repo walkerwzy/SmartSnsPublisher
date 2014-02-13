@@ -15,6 +15,11 @@ namespace SmartSnsPublisher
         /// </summary>
         string AppKey { get; set; }
 
+        /// <summary>
+        /// 服务回调页
+        /// </summary>
+        string RedirectUrl { get; set; }
+
         #endregion
 
         #region 授权
@@ -23,7 +28,7 @@ namespace SmartSnsPublisher
         /// <summary>
         /// 从用户获取授权
         /// </summary>
-        void Authorization();
+        string GetAuthorizationUrl();
         /// <summary>
         /// 用户授权后，从资源方获取令牌
         /// </summary>
@@ -32,7 +37,7 @@ namespace SmartSnsPublisher
         #endregion
 
         #region 操作
-        
+
         /// <summary>
         /// 发布一条文字微博
         /// </summary>

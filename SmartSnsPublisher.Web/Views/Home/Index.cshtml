@@ -7,27 +7,50 @@
     </style>
 }
 <br />
-<div class="container">
-    <div class=" col-xs-12 col-md-8 col-md-offset-2">
-        <form role="form" action="/home/process" method="POST">
+<div class="container" ng-app="srv">
+    <div class=" col-xs-12 col-md-8 col-md-offset-2" ng-controller="myCtrl">
+        <form role="form" ng-submit="submit()">
             <div class="form-group">
                 <label for="txtcont">Mesage</label>
-                <textarea placeholder="Input your message here" class="form-control"></textarea>
+                <textarea id="txtcont" placeholder="Input your message here" class="form-control"></textarea>
             </div>
             <div class="form-group">
                 @*<label for="exampleInputFile">File input</label>*@
                 <input type="file" id="exampleInputFile">
                 @*<p class="help-block">Example block-level help text here.</p>*@
             </div>
-            <div class="checkbox">
-                <label><input type="checkbox" value="sina" id="cbxsina" name="snsaccount" />&nbsp;sina</label>
-                <button class="btn btn-link">unlink</button>
-            </div>
-            <div class="checkbox">
-                <label><input type="checkbox" value="qq" id="cbxsina" name="snsaccount" />&nbsp;QQ</label>
-                <button class="btn btn-link">link</button>
-            </div>
-            <button type="submit" class="btn btn-primary">Submit</button>
+            <ul class="list-unstyled">
+                <li class="checkbox" ng-repeat="site in sites" ng-mouseenter="showAction($index)" ng-mouseleave="showAction(-1)">
+                    <label><input type="checkbox" name="snsaccount" />&nbsp;{{site.sitename}}</label>
+                    <span ng-show="cursite==$index" class="pull-right">
+                        <button class="btn btn-link" ng-disabled="{{site.linked}}" ng-click="goAuth(site.url)">link</button>
+                        <button class="btn btn-link" ng-disabled="{{!site.linked}}">unlink</button>
+                    </span>
+                </li>
+            </ul>
+            <button type="submit" class="btn btn-primary pull-right"><i class="glyphicon glyphicon-edit"></i> Submit</button>
         </form>
     </div>
 </div>
+@section scripts{
+    @Scripts.Render("~/bundles/angular")
+    <script type="text/javascript">
+        angular.module('srv', []).controller('myCtrl', ['$scope', function($scope) {
+            var sites = [
+                { sitename: 'sina', linked: false, url: '/social/getcode/sina' },
+                { sitename: 'qq', linked: false, url: '/social/getcode/qq' }
+            ];
+            $scope.sites = sites;
+            $scope.cursite = -1;
+            $scope.showAction = function(index) {
+                $scope.cursite = index;
+            };
+            $scope.goAuth = function(url) {
+                window.open(url);
+            };
+            $scope.submit = function() {
+                
+            };
+        }]);
+    </script>
+}

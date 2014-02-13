@@ -12,6 +12,7 @@ namespace SmartSnsPublisher.Service
     public class SinaService : IAccountFacade
     {
         private string _appkey;
+        private string _redirectUrl;
         private static readonly Dictionary<string, string> _resources = new Dictionary<string, string>
         {
             {"authorize","https://api.weibo.com/oauth2/authorize"}, //请求授权
@@ -41,9 +42,24 @@ namespace SmartSnsPublisher.Service
             }
         }
 
-        public void Authorization()
+        public string RedirectUrl
         {
-            var param = new Dictionary<string, string>
+            get
+            {
+                if (string.IsNullOrEmpty(_redirectUrl))
+                {
+                    _appkey = ConfigurationManager.AppSettings["app:sina:redirect"];
+                }
+                return _appkey;
+            }
+            set
+            {
+                _redirectUrl = value;
+            }
+        }
+        public string GetAuthorizationUrl()
+        {
+            var param = new Dictionary<string, object>
             {
                 {"client_id",AppKey},
                 {"rediredt_uri",""},
@@ -53,9 +69,16 @@ namespace SmartSnsPublisher.Service
                 {"forcelogin",""},
                 {"language",""}
             };
-            string resp = HelperWebRequest.DoGet(_resources["authorize"], param);
-            var respObj = JsonConvert.DeserializeObject(resp);
-            //store code and state
+
+            var query = param.ToQueryString();
+            var url = _resources["authorize"];
+            if (url.Contains('?')) url = url + '&' + query;
+            else url = url + '?' + query;
+            //string resp = HelperWebRequest.DoGet(_resources["authorize"], param);
+            //var respObj = JsonConvert.DeserializeObject(resp);
+
+            // instead of request the url directly, we retun it to browser
+            return url;
         }
 
         public void GetAccessToken()

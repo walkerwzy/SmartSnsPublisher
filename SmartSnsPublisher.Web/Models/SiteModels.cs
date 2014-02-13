@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
+using Newtonsoft.Json;
 
 namespace SmartSnsPublisher.Web.Models
 {
@@ -22,10 +23,15 @@ namespace SmartSnsPublisher.Web.Models
 
     public class SiteInfo : Entity
     {
+        [JsonProperty("id")]
         public string UserId { get; set; }
+        [JsonProperty("sitename")]
         public string SiteName { get; set; }
+        [JsonProperty("des")]
         public string Description { get; set; }
+        [JsonProperty("token")]
         public string AccessToken { get; set; }
+        [JsonProperty("expires")]
         public DateTime ExpireDate { get; set; }
     }
 }
