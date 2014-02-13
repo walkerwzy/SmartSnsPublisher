@@ -28,7 +28,7 @@ namespace SmartSnsPublisher.Web.Controllers
         public async Task<ActionResult> Sina(string code)
         {
             if(string.IsNullOrEmpty(code.Trim()))
-                    return await Task.Run(() => Content("illegal entrance"));
+                return await Task.Run(() => Content("illegal entrance"));
 
             var srv = new SinaService();
             string s = await srv.GetAccessTokenAsync(code);

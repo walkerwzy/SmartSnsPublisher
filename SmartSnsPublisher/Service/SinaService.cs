@@ -60,8 +60,7 @@ namespace SmartSnsPublisher.Service
             };
             var client = new HttpClient();
             var response = client.PostAsync(Resources["accesstoken"],
-                new FormUrlEncodedContent(postData))
-                .Result;
+                new FormUrlEncodedContent(postData)).Result;
             if (response.IsSuccessStatusCode) return await response.Content.ReadAsStringAsync();
             return await Task.Run(() => "error");
         }
