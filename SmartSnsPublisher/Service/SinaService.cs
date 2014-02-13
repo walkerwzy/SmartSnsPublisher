@@ -62,7 +62,7 @@ namespace SmartSnsPublisher.Service
             var param = new Dictionary<string, object>
             {
                 {"client_id",AppKey},
-                {"rediredt_uri",""},
+                {"rediredt_uri",RedirectUrl},
                 {"scope","all"},
                 {"state",""},
                 {"display",""}, //defalut, mobile, wap, client, apponweibo
