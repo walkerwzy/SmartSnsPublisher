@@ -8,19 +8,6 @@ namespace SmartSnsPublisher
 {
     public interface IAccountFacade
     {
-        #region 属性
-
-        /// <summary>
-        /// 服务发布方的appkey
-        /// </summary>
-        string AppKey { get; set; }
-
-        /// <summary>
-        /// 服务回调页
-        /// </summary>
-        string RedirectUrl { get; set; }
-
-        #endregion
 
         #region 授权
 
@@ -29,10 +16,11 @@ namespace SmartSnsPublisher
         /// 从用户获取授权
         /// </summary>
         string GetAuthorizationUrl();
+
         /// <summary>
         /// 用户授权后，从资源方获取令牌
         /// </summary>
-        void GetAccessToken();
+        Task<string> GetAccessTokenUrl(string code);
 
         #endregion
 

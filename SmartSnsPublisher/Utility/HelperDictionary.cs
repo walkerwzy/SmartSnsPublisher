@@ -19,7 +19,7 @@ namespace SmartSnsPublisher.Utility
                 string name = dem.Current.Key;
                 string value = dem.Current.Value.ToString();
                 // 如果设置为忽略参数名或参数值为空的参数
-                if(ignoreBlank && (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(value))) continue;
+                if (ignoreBlank && (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(value))) continue;
                 if (hasParam)
                 {
                     postData.Append("&");

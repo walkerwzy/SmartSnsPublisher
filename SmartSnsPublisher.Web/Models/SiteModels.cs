@@ -14,7 +14,7 @@ namespace SmartSnsPublisher.Web.Models
         public SiteDbContext()
             : base("DefaultConnection")
         {
-            
+
         }
 
         public DbSet<SiteInfo> Sites { get; set; }
@@ -27,6 +27,8 @@ namespace SmartSnsPublisher.Web.Models
         public string UserId { get; set; }
         [JsonProperty("sitename")]
         public string SiteName { get; set; }
+        [JsonProperty("socialid")]
+        public string SocialId { get; set; }
         [JsonProperty("des")]
         public string Description { get; set; }
         [JsonProperty("token")]

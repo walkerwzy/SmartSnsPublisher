@@ -32,7 +32,9 @@ namespace SdkTest
             //    SiteName = "sitename2",
             //    UserId = "aabc"
             //});
-            Console.WriteLine(repo.UserConnectedSites("aabc").Count());
+            //Console.WriteLine(repo.UserConnectedSites("aabc").Count());
+            Console.WriteLine(DateTime.Now.ToString());
+            Console.WriteLine(DateTime.UtcNow.ToString());
         }
     }
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using SmartSnsPublisher.Utility;
@@ -11,9 +12,10 @@ namespace SmartSnsPublisher.Service
 {
     public class SinaService : IAccountFacade
     {
-        private string _appkey;
-        private string _redirectUrl;
-        private static readonly Dictionary<string, string> _resources = new Dictionary<string, string>
+        private readonly string _appkey;
+        private readonly string _redirectUrl;
+        private readonly string _appsecret;
+        private static readonly Dictionary<string, string> Resources = new Dictionary<string, string>
         {
             {"authorize","https://api.weibo.com/oauth2/authorize"}, //请求授权
             {"accesstoken","https://api.weibo.com/oauth2/access_token"},//获取授权
@@ -24,66 +26,49 @@ namespace SmartSnsPublisher.Service
 
         public SinaService()
         {
-            _appkey = AppKey;
-        }
-        public string AppKey
-        {
-            get
-            {
-                if (string.IsNullOrEmpty(_appkey))
-                {
-                    _appkey = ConfigurationManager.AppSettings["app:sina:key"];
-                }
-                return _appkey;
-            }
-            set
-            {
-                _appkey = value;
-            }
+            _appkey = ConfigurationManager.AppSettings["app:sina:key"];
+            _redirectUrl = ConfigurationManager.AppSettings["app:sina:redirect"];
+            _appsecret = ConfigurationManager.AppSettings["app:sina:secret"];
         }
 
-        public string RedirectUrl
-        {
-            get
-            {
-                if (string.IsNullOrEmpty(_redirectUrl))
-                {
-                    _appkey = ConfigurationManager.AppSettings["app:sina:redirect"];
-                }
-                return _appkey;
-            }
-            set
-            {
-                _redirectUrl = value;
-            }
-        }
         public string GetAuthorizationUrl()
         {
             var param = new Dictionary<string, object>
             {
-                {"client_id",AppKey},
-                {"rediredt_uri",RedirectUrl},
+                {"client_id",_appkey},
+                {"redirect_uri",_redirectUrl},
                 {"scope","all"},
                 {"state",""},
                 {"display",""}, //defalut, mobile, wap, client, apponweibo
                 {"forcelogin",""},
-                {"language",""}
+                {"language",""},
+                {"response_type","code"}
             };
 
-            var query = param.ToQueryString();
-            var url = _resources["authorize"];
-            if (url.Contains('?')) url = url + '&' + query;
-            else url = url + '?' + query;
-            //string resp = HelperWebRequest.DoGet(_resources["authorize"], param);
-            //var respObj = JsonConvert.DeserializeObject(resp);
-
-            // instead of request the url directly, we retun it to browser
-            return url;
+            return GetUrl(param, Resources["authorize"]);
         }
-
-        public void GetAccessToken()
+        
+        public async Task<string> GetAccessTokenUrl(string code)
         {
-            throw new NotImplementedException();
+            var param = new Dictionary<string, object>
+            {
+                {"client_id", _appkey},
+                {"client_secret", _appsecret},
+                {"redirect_uri", _redirectUrl},
+                {"grant_type", "authorization_code"}, //hard code
+                {"code", code}
+            };
+            //return GetUrl(param, _resources["accesstoken"]);
+            var postData = new List<KeyValuePair<string, string>>
+            {
+              new KeyValuePair<string, string>("client_id", _appkey),
+                new KeyValuePair<string, string>("client_secret", _appsecret),
+                new KeyValuePair<string, string>("redirect_uri", _redirectUrl),
+                new KeyValuePair<string, string>("grant_type", "authorization_code"), //hard code
+                new KeyValuePair<string, string>("code", code)
+            };
+            var client = new HttpClient();
+            return await client.PostAsync(Resources["accesstoken"], new FormUrlEncodedContent(postData)).Result.Content.ReadAsStringAsync();
         }
 
         public void Post(string message)
@@ -103,6 +88,19 @@ namespace SmartSnsPublisher.Service
 
         #region helper
 
+        /// <summary>
+        /// Compose resource url and params
+        /// </summary>
+        /// <param name="param"></param>
+        /// <param name="url"></param>
+        /// <returns></returns>
+        private static string GetUrl(Dictionary<string, object> param, string url)
+        {
+            var query = param.ToQueryString();
+            if (url.Contains('?')) url = url + '&' + query;
+            else url = url + '?' + query;
+            return url;
+        }
 
         #endregion
     }

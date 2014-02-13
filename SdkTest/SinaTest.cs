@@ -11,8 +11,7 @@ namespace SdkTest
         [TestMethod]
         public void TestMethod1()
         {
-            SinaService sina = new SinaService();
-            Console.WriteLine(sina.AppKey);
+
         }
     }
 }
