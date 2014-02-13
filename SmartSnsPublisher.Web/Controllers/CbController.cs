@@ -25,15 +25,27 @@ namespace SmartSnsPublisher.Web.Controllers
 
         // sina api callback handler
         // GET: /Cb/
-        public async Task<ActionResult> Sina(string code = "", string access_token = "", int expires_in = -1, string uid = "")
+        public async Task<ActionResult> Sina(string code)
         {
-            if (string.IsNullOrEmpty(code) && string.IsNullOrEmpty(access_token))
-            {
-                await Task.Run(() => { });
-                return Content("illegal entrance");
-            }
+            if(string.IsNullOrEmpty(code.Trim()))
+                    return await Task.Run(() => Content("illegal entrance"));
 
             var srv = new SinaService();
+            string s = await srv.GetAccessTokenAsync(code);
+            return Content(s);
+        }
+
+
+        //public async Task<ActionResult> Sina(string code = "", string access_token = "", int expires_in = -1, string uid = "")
+        //{
+        //    if (string.IsNullOrEmpty(code) && string.IsNullOrEmpty(access_token))
+        //        return await Task.Run(() => Content("illegal entrance"));
+
+        //    var srv = new SinaService();
+
+        //    if (string.IsNullOrEmpty(code)) return await Task.Run(() => Content("illegal entrance"));
+        //    string s = await srv.GetAccessToken(code);
+        //    return Content(s);
             //if (string.IsNullOrEmpty(access_token))
             //{
             //    //return Redirect(srv.GetAccessTokenUrl(code));
@@ -50,18 +62,6 @@ namespace SmartSnsPublisher.Web.Controllers
             //};
             //repository.AddConnectSite(site);
             //return JavaScript("alert('authorization successfull!');window.close();");
-
-            if (!string.IsNullOrEmpty(code))
-            {
-                string s = await srv.GetAccessTokenUrl(code);
-                return Content(s);
-
-            }
-            else
-            {
-                await Task.Run(() => { });
-                return Content("illegal entrance");
-            }
-        }
+        //}
     }
 }

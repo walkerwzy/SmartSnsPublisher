@@ -47,28 +47,23 @@ namespace SmartSnsPublisher.Service
 
             return GetUrl(param, Resources["authorize"]);
         }
-        
-        public async Task<string> GetAccessTokenUrl(string code)
+
+        public async Task<string> GetAccessTokenAsync(string code)
         {
-            var param = new Dictionary<string, object>
-            {
-                {"client_id", _appkey},
-                {"client_secret", _appsecret},
-                {"redirect_uri", _redirectUrl},
-                {"grant_type", "authorization_code"}, //hard code
-                {"code", code}
-            };
-            //return GetUrl(param, _resources["accesstoken"]);
             var postData = new List<KeyValuePair<string, string>>
             {
-              new KeyValuePair<string, string>("client_id", _appkey),
+                new KeyValuePair<string, string>("client_id", _appkey),
                 new KeyValuePair<string, string>("client_secret", _appsecret),
                 new KeyValuePair<string, string>("redirect_uri", _redirectUrl),
                 new KeyValuePair<string, string>("grant_type", "authorization_code"), //hard code
                 new KeyValuePair<string, string>("code", code)
             };
             var client = new HttpClient();
-            return await client.PostAsync(Resources["accesstoken"], new FormUrlEncodedContent(postData)).Result.Content.ReadAsStringAsync();
+            var response = client.PostAsync(Resources["accesstoken"],
+                new FormUrlEncodedContent(postData))
+                .Result;
+            if (response.IsSuccessStatusCode) return await response.Content.ReadAsStringAsync();
+            return await Task.Run(() => "error");
         }
 
         public void Post(string message)

@@ -20,7 +20,7 @@ namespace SmartSnsPublisher
         /// <summary>
         /// 用户授权后，从资源方获取令牌
         /// </summary>
-        Task<string> GetAccessTokenUrl(string code);
+        Task<string> GetAccessTokenAsync(string code);
 
         #endregion
 
