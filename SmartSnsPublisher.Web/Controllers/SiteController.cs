@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Threading.Tasks;
 using System.Web.Http;
+using Microsoft.AspNet.Identity;
 using SmartSnsPublisher.Web.Models;
 using SmartSnsPublisher.Web.Repository;
 
@@ -19,11 +22,12 @@ namespace SmartSnsPublisher.Web.Controllers
         }
 
         // get user linked sites
-        // GET: /api/site/id
+        // GET: /api/site
+        [Authorize]
         [HttpGet]
-        public IList<SiteInfo> UserSites(string id)
+        public async Task<IList<SiteInfo>> UserSites()
         {
-            return _repository.UserConnectedSites(id).ToList();
+            return await _repository.UserConnectedSites(User.Identity.GetUserId()).ToListAsync();
         }
     }
 }

@@ -62,12 +62,9 @@ namespace SmartSnsPublisher.Service
             var client = new HttpClient();
             var response = client.PostAsync(Resources["accesstoken"],
                 new FormUrlEncodedContent(postData)).Result;
-            //if (response.IsSuccessStatusCode) return await JsonConvert.DeserializeObject<SinaAccessToken>(response.Content.ReadAsStringAsync());
-            //return await Task.Run(() => "error with status code: " + response.StatusCode);
-            //return await Task.Run(() => "error with status code: " + response.StatusCode);
             var result = await response.Content.ReadAsStringAsync();
-            if (!response.IsSuccessStatusCode) return new SinaAccessToken { Error = "Response code: " + response.StatusCode };
-            return JsonConvert.DeserializeObject<SinaAccessToken>(result);
+            await Task.Run(() => HelperLogger.Debug(result));
+            return !response.IsSuccessStatusCode ? new SinaAccessToken { Error = "Response code: " + response.StatusCode } : JsonConvert.DeserializeObject<SinaAccessToken>(result);
         }
 
         public void Post(string message)

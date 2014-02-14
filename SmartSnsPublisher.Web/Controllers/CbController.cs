@@ -7,7 +7,9 @@ using System.Web;
 using System.Web.Mvc;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
+using Newtonsoft.Json;
 using NLog;
+using SmartSnsPublisher.Entity;
 using SmartSnsPublisher.Service;
 using SmartSnsPublisher.Utility;
 using SmartSnsPublisher.Web.Models;
@@ -49,7 +51,8 @@ namespace SmartSnsPublisher.Web.Controllers
                     UserId = User.Identity.GetUserId()
                 };
                 repository.AddConnectSite(site);
-                return JavaScript("alert('authorization successfull!');window.close();");
+                //return JavaScript("<script>alert('authorization successfull!');window.close();</script>");
+                return Redirect("/");
             }
             catch (Exception ex)
             {
@@ -58,50 +61,10 @@ namespace SmartSnsPublisher.Web.Controllers
             return await CreateAsyncResult(err);
         }
 
-        public ActionResult Test(string id)
-        {
-            //logger.Debug("Debugging Message");
-            //logger.Info("Info message");
-            //logger.Warn("Warning Message");
-
-            //HelperLogger.log(DateTime.Now.ToString());
-            //HelperLogger.Debug();
-
-            return Content(id);
-        }
 
         private async Task<ActionResult> CreateAsyncResult(string message)
         {
             return await Task.Run(() => Content("authorization failure: " + message));
         }
-
-
-        //public async Task<ActionResult> Sina(string code = "", string access_token = "", int expires_in = -1, string uid = "")
-        //{
-        //    if (string.IsNullOrEmpty(code) && string.IsNullOrEmpty(access_token))
-        //        return await Task.Run(() => Content("illegal entrance"));
-
-        //    var srv = new SinaService();
-
-        //    if (string.IsNullOrEmpty(code)) return await Task.Run(() => Content("illegal entrance"));
-        //    string s = await srv.GetAccessToken(code);
-        //    return Content(s);
-            //if (string.IsNullOrEmpty(access_token))
-            //{
-            //    //return Redirect(srv.GetAccessTokenUrl(code));
-            //    SmartSnsPublisher.Utility.HelperWebRequest.DoPost(srv.GetAccessTokenUrl(code), null);
-            //}
-            //else if (expires_in == -1 || string.IsNullOrEmpty(uid)) return Content("invalid request");
-            //var site = new SiteInfo
-            //{
-            //    AccessToken = access_token,
-            //    ExpireDate = DateTime.UtcNow.AddHours(8).AddSeconds(expires_in),
-            //    SocialId = uid,
-            //    SiteName = "sina",
-            //    UserId = User.Identity.GetUserId()
-            //};
-            //repository.AddConnectSite(site);
-            //return JavaScript("alert('authorization successfull!');window.close();");
-        //}
     }
 }

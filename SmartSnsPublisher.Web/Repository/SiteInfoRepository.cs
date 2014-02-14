@@ -31,6 +31,9 @@ namespace SmartSnsPublisher.Web.Repository
         /// <param name="info"></param>
         public void AddConnectSite(SiteInfo info)
         {
+            //unique userid
+            var old = _context.Sites.Where(m => m.UserId == info.UserId);
+            if (old.Any()) _context.Sites.Remove(old.First());
             _context.Sites.Add(info);
             _context.SaveChanges();
         }
