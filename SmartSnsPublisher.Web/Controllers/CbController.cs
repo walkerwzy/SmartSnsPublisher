@@ -7,6 +7,7 @@ using System.Web;
 using System.Web.Mvc;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
+using NLog;
 using SmartSnsPublisher.Service;
 using SmartSnsPublisher.Web.Models;
 using SmartSnsPublisher.Web.Repository;
@@ -17,6 +18,7 @@ namespace SmartSnsPublisher.Web.Controllers
     public class CbController : Controller
     {
         private readonly SiteInfoRepository repository;
+        private static Logger logger = LogManager.GetCurrentClassLogger();
 
         public CbController()
         {
@@ -53,6 +55,14 @@ namespace SmartSnsPublisher.Web.Controllers
                 err = ex.Message;
             }
             return await CreateAsyncResult(err);
+        }
+
+        public ActionResult Test(string id)
+        {
+            logger.Debug("Debugging Message");
+            logger.Info("Info message");
+            logger.Warn("Warning Message");
+            return Content(id);
         }
 
         private async Task<ActionResult> CreateAsyncResult(string message)
