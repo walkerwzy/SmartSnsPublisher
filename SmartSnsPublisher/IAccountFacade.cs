@@ -30,14 +30,22 @@ namespace SmartSnsPublisher
         /// <summary>
         /// 发布一条文字微博
         /// </summary>
+        /// <see cref="http://open.weibo.com/wiki/2/statuses/update"/>
+        /// <param name="token"></param>
         /// <param name="message"></param>
-        void Post(string message);
+        /// <param name="ip"></param>
+        /// <param name="latitude"></param>
+        /// <param name="longitude"></param>
+        Task<string> UpdateAsync(string token, string message, string ip, string latitude, string longitude);
+
         /// <summary>
         /// 发布一条带图片的微博
         /// </summary>
+        /// <param name="token"></param>
         /// <param name="message"></param>
         /// <param name="attachment"></param>
-        void Post(string message, byte[] attachment);
+        /// <see cref="http://open.weibo.com/wiki/2/statuses/upload"/>
+        Task<string> PostAsync(string token, string message, byte[] attachment);
         /// <summary>
         /// 删除一条微博
         /// </summary>
