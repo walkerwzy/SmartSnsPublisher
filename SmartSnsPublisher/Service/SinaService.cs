@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using SmartSnsPublisher.Entity;
 using SmartSnsPublisher.Utility;
 using Newtonsoft.Json;
 
@@ -48,7 +49,7 @@ namespace SmartSnsPublisher.Service
             return GetUrl(param, Resources["authorize"]);
         }
 
-        public async Task<string> GetAccessTokenAsync(string code)
+        public async Task<SinaAccessToken> GetAccessTokenAsync(string code)
         {
             var postData = new List<KeyValuePair<string, string>>
             {
@@ -61,8 +62,12 @@ namespace SmartSnsPublisher.Service
             var client = new HttpClient();
             var response = client.PostAsync(Resources["accesstoken"],
                 new FormUrlEncodedContent(postData)).Result;
-            if (response.IsSuccessStatusCode) return await response.Content.ReadAsStringAsync();
-            return await Task.Run(() => "error");
+            //if (response.IsSuccessStatusCode) return await JsonConvert.DeserializeObject<SinaAccessToken>(response.Content.ReadAsStringAsync());
+            //return await Task.Run(() => "error with status code: " + response.StatusCode);
+            //return await Task.Run(() => "error with status code: " + response.StatusCode);
+            var result = await response.Content.ReadAsStringAsync();
+            if (!response.IsSuccessStatusCode) return new SinaAccessToken {Error = response.StatusCode.ToString()};
+            return JsonConvert.DeserializeObject<SinaAccessToken>(result);
         }
 
         public void Post(string message)

@@ -27,12 +27,37 @@ namespace SmartSnsPublisher.Web.Controllers
         // GET: /Cb/
         public async Task<ActionResult> Sina(string code)
         {
-            if(string.IsNullOrEmpty(code.Trim()))
-                return await Task.Run(() => Content("illegal entrance"));
+            if (string.IsNullOrEmpty(code.Trim()))
+                return await CreateAsyncResult("illegal entrance");
+            string err;
+            try
+            {
+                var srv = new SinaService();
+                var token = await srv.GetAccessTokenAsync(code);
+                if (string.IsNullOrEmpty(token.Error))
+                    return await CreateAsyncResult(token.Error);
 
-            var srv = new SinaService();
-            string s = await srv.GetAccessTokenAsync(code);
-            return Content(s);
+                var site = new SiteInfo
+                {
+                    AccessToken = token.AccessToken,
+                    ExpireDate = DateTime.UtcNow.AddHours(8).AddSeconds(token.Expire),
+                    SocialId = token.UserId,
+                    SiteName = "sina",
+                    UserId = User.Identity.GetUserId()
+                };
+                repository.AddConnectSite(site);
+                return JavaScript("alert('authorization successfull!');window.close();");
+            }
+            catch (Exception ex)
+            {
+                err = ex.Message;
+            }
+            return await CreateAsyncResult(err);
+        }
+
+        private async Task<ActionResult> CreateAsyncResult(string message)
+        {
+            return await Task.Run(() => Content("authorization failure: " + message));
         }
 
 

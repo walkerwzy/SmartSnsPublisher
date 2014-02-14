@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using SmartSnsPublisher.Entity;
 
 namespace SmartSnsPublisher
 {
@@ -20,7 +21,7 @@ namespace SmartSnsPublisher
         /// <summary>
         /// 用户授权后，从资源方获取令牌
         /// </summary>
-        Task<string> GetAccessTokenAsync(string code);
+        Task<SinaAccessToken> GetAccessTokenAsync(string code);
 
         #endregion
 
