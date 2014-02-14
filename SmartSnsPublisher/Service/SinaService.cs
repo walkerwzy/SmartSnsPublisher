@@ -66,7 +66,8 @@ namespace SmartSnsPublisher.Service
             //return await Task.Run(() => "error with status code: " + response.StatusCode);
             //return await Task.Run(() => "error with status code: " + response.StatusCode);
             var result = await response.Content.ReadAsStringAsync();
-            if (!response.IsSuccessStatusCode) return new SinaAccessToken {Error = response.StatusCode.ToString()};
+            HelperLogger.Debug(JsonConvert.SerializeObject(result));
+            if (!response.IsSuccessStatusCode) return new SinaAccessToken { Error = response.StatusCode.ToString() };
             return JsonConvert.DeserializeObject<SinaAccessToken>(result);
         }
 

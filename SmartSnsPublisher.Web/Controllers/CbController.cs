@@ -9,6 +9,7 @@ using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
 using NLog;
 using SmartSnsPublisher.Service;
+using SmartSnsPublisher.Utility;
 using SmartSnsPublisher.Web.Models;
 using SmartSnsPublisher.Web.Repository;
 
@@ -59,9 +60,13 @@ namespace SmartSnsPublisher.Web.Controllers
 
         public ActionResult Test(string id)
         {
-            logger.Debug("Debugging Message");
-            logger.Info("Info message");
-            logger.Warn("Warning Message");
+            //logger.Debug("Debugging Message");
+            //logger.Info("Info message");
+            //logger.Warn("Warning Message");
+
+            //HelperLogger.log(DateTime.Now.ToString());
+            //HelperLogger.Debug();
+
             return Content(id);
         }
 
