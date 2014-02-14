@@ -111,4 +111,4 @@ Backup*/
 UpgradeLog*.XML
 
 #specific test proj
-[Ss]dkTest/
+#[Ss]dkTest/
