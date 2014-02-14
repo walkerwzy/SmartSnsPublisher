@@ -28,7 +28,7 @@
             </div>
             <ul class="list-unstyled">
                 <li class="checkbox" ng-repeat="(key,site) in sites" ng-mouseenter="showAction($index)" ng-mouseleave="showAction(-1)">
-                    <label><input type="checkbox" name="snsaccount" />&nbsp;{{key}}</label>
+                    <label><input type="checkbox" name="snsaccount" ng-disabled="{{site.linked}}" />&nbsp;{{key}}</label>
                     <span ng-show="cursite==$index" class="pull-right">
                         <button class="btn btn-link" ng-disabled="{{site.linked}}" ng-click="goAuth(site.url)">link</button>
                         <button class="btn btn-link" ng-disabled="{{!site.linked}}">unlink</button>
