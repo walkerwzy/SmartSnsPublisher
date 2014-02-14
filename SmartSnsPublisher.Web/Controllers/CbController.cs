@@ -37,7 +37,7 @@ namespace SmartSnsPublisher.Web.Controllers
             {
                 var srv = new SinaService();
                 var token = await srv.GetAccessTokenAsync(code);
-                if (string.IsNullOrEmpty(token.Error))
+                if (!string.IsNullOrEmpty(token.Error))
                     return await CreateAsyncResult(token.Error);
 
                 var site = new SiteInfo
