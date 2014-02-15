@@ -12,14 +12,16 @@
 <br />
 <div class="container" ng-app="srv">
     <div class=" col-xs-12 col-md-8 col-md-offset-2" ng-controller="myCtrl">
-        <div class="alert alert-danger" ng-show="errMsg!=''">
+        <div class="alert alert-danger" ng-show="$root.errMsg">
             {{$root.errMsg}}
-            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        </div>
+        <div class="alert alert-success" ng-show="$root.infoMsg">
+            {{$root.infoMsg}}
         </div>
         <form role="form" ng-submit="submit()">
             <div class="form-group">
                 <label for="txtcont">Mesage</label>
-                <textarea id="txtcont" placeholder="Input your message here" class="form-control"></textarea>
+                <textarea id="txtcont" placeholder="Input your message here" class="form-control" ng-model="msg"></textarea>
             </div>
             <div class="form-group">
                 @*<label for="exampleInputFile">File input</label>*@
@@ -35,12 +37,18 @@
                     </span>
                 </li>
             </ul>
-            <button type="submit" class="btn btn-primary pull-right"><i class="glyphicon glyphicon-edit"></i> Submit</button>
+            <div class="well well-sm text-muted text-center" ng-show="!sites">loading sns data...</div>
+            <div class="text-right">
+                <span><strong>{{140-msg.length}}</strong>&nbsp;left&nbsp;</span>
+                <button type="submit" class="btn btn-primary pull-right"><i class="glyphicon glyphicon-edit"></i> Submit</button>
+            </div>
         </form>
     </div>
 </div>
-@section scripts{
+@section headjs{
     @Scripts.Render("~/bundles/angular")
+}
+@section scripts{
     <script type="text/javascript">
         var app = angular.module('srv', []);
         app.controller('myCtrl', ['$scope', '$rootScope', 'mySrv', function ($scope, $rootScope, mySrv) {
@@ -78,6 +86,10 @@
             self.error = function (msg) {
                 $rootScope.errMsg = msg;
                 $timeout(function () { $rootScope.errMsg = ''; }, 10000);
+            };
+            self.info = function (msg) {
+                $rootScope.infoMsg = msg;
+                $timeout(function () { $rootScope.infoMsg = ''; }, 10000);
             };
             return self;
         }]);

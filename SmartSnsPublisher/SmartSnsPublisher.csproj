@@ -60,7 +60,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Entity\FileItem.cs" />
     <Compile Include="Entity\SinaAccessToken.cs" />
     <Compile Include="IAccountFacade.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -68,7 +67,6 @@
     <Compile Include="Utility\HelperDictionary.cs" />
     <Compile Include="Utility\HelperFileInfo.cs" />
     <Compile Include="Utility\HelperLogger.cs" />
-    <Compile Include="Utility\HelperWebRequest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

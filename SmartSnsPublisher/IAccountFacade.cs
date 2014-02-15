@@ -36,6 +36,7 @@ namespace SmartSnsPublisher
         /// <param name="ip"></param>
         /// <param name="latitude"></param>
         /// <param name="longitude"></param>
+        /// <returns></returns>
         Task<string> UpdateAsync(string token, string message, string ip, string latitude, string longitude);
 
         /// <summary>
@@ -44,8 +45,12 @@ namespace SmartSnsPublisher
         /// <param name="token"></param>
         /// <param name="message"></param>
         /// <param name="attachment"></param>
+        /// <param name="ip"></param>
+        /// <param name="latitude"></param>
+        /// <param name="longitude"></param>
         /// <see cref="http://open.weibo.com/wiki/2/statuses/upload"/>
-        Task<string> PostAsync(string token, string message, byte[] attachment);
+        /// <returns>"ok" for success, or error string</returns>
+        Task<string> PostAsync(string token, string message, byte[] attachment, string ip = "127.0.0.1", string latitude = "0.0", string longitude = "0.0");
         /// <summary>
         /// 删除一条微博
         /// </summary>

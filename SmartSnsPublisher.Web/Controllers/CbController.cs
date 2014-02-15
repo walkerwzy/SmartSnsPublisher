@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -60,7 +61,7 @@ namespace SmartSnsPublisher.Web.Controllers
             }
         }
 
-        public async Task<ActionResult> update(string id = "hello world")
+        public async Task<ActionResult> Update(string id = "hello world")
         {
             try
             {
@@ -69,6 +70,42 @@ namespace SmartSnsPublisher.Web.Controllers
                     .Single(m => m.SiteName == "sina").AccessToken;
                 var rtn = await srv.UpdateAsync(token, id);
                 return Content(rtn);
+            }
+            catch (Exception ex)
+            {
+                var s = "err:" + ex.Message;
+                while (ex.InnerException != null)
+                {
+                    s += ex.Message + "<br/>";
+                    ex = ex.InnerException;
+                }
+                return Content(s);
+            }
+        }
+
+        public async Task<ActionResult> Upload(string id)
+        {
+            try
+            {
+                id = "upload image test: " + DateTime.Now.Ticks.ToString("x");
+                var srv = new SinaService();
+                var imgurl = @"c:\users\walker\desktop\test.jpg";
+                //using (var img=Image.FromFile(imgurl))
+                //{
+                //    var ba = new ImageConverter().ConvertTo(img, typeof (byte[]));
+                //}
+                byte[] ba;
+                using (var stream = System.IO.File.OpenRead(imgurl))
+                {
+                    var fileLength = (int)stream.Length;
+                    ba = new byte[fileLength];
+                    stream.Read(ba, 0, fileLength);
+                }
+                var token = repository.UserConnectedSites(User.Identity.GetUserId())
+                    .Single(m => m.SiteName == "sina").AccessToken;
+                var rtn = await srv.PostAsync(token, id, ba);
+                return Content(rtn);
+
             }
             catch (Exception ex)
             {
