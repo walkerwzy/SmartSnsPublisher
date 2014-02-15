@@ -56,11 +56,31 @@ namespace SmartSnsPublisher.Web.Controllers
             }
             catch (Exception ex)
             {
-                err = ex.Message;
+                return Content(ex.Message);
             }
-            return await CreateAsyncResult(err);
         }
 
+        public async Task<ActionResult> update(string id = "hello world")
+        {
+            try
+            {
+                var srv = new SinaService();
+                var token = repository.UserConnectedSites(User.Identity.GetUserId())
+                    .Single(m => m.SiteName == "sina").AccessToken;
+                var rtn = await srv.UpdateAsync(token, id);
+                return Content(rtn);
+            }
+            catch (Exception ex)
+            {
+                var s = "err:" + ex.Message;
+                while (ex.InnerException != null)
+                {
+                    s += ex.Message + "<br/>";
+                    ex = ex.InnerException;
+                }
+                return Content(s);
+            }
+        }
 
         private async Task<ActionResult> CreateAsyncResult(string message)
         {
