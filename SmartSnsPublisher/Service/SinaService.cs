@@ -116,12 +116,12 @@ namespace SmartSnsPublisher.Service
             var postData = new Dictionary<string, string>
             {
                 {"access_token",token},
-                {"status",System.Net.WebUtility.UrlEncode(message)}, //urlencode withou system.web 
+                {"status",encodeURI(message)}, //urlencode withou system.web 
                 //{"visible","0"},//微博的可见性，0：所有人能看，1：仅自己可见，2：密友可见，3：指定分组可见，默认为0。
                 //{"list_id",""},//微博的保护投递指定分组ID，只有当visible参数为3时生效且必选。
                 {"lat",latitude},
                 {"long",longitude},
-                {"annotations","\"from walker's sns sync app\""}, //json
+                //{"annotations","\"from walker's sns sync app\""}, //json
                 {"rip",ip}
             };
             using (var client = new HttpClient())
@@ -160,7 +160,7 @@ namespace SmartSnsPublisher.Service
             var postData = new Dictionary<string, string>
             {
                 {"access_token",token},
-                {"status",System.Net.WebUtility.UrlEncode(message)}, //urlencode withou system.web 
+                {"status",encodeURI(message)}, //urlencode withou system.web 
                 //{"visible","0"},//微博的可见性，0：所有人能看，1：仅自己可见，2：密友可见，3：指定分组可见，默认为0。
                 //{"list_id",""},//微博的保护投递指定分组ID，只有当visible参数为3时生效且必选。
                 {"lat",latitude},
@@ -217,6 +217,12 @@ namespace SmartSnsPublisher.Service
             if (url.Contains('?')) url = url + '&' + query;
             else url = url + '?' + query;
             return url;
+        }
+
+        private string encodeURI(string source)
+        {
+            // microsoft encode the blank  to '+', we change it back
+            return System.Net.WebUtility.UrlEncode(source).Replace("+", " ");
         }
 
         #endregion

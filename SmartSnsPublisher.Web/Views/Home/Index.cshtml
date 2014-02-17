@@ -7,6 +7,27 @@
             padding-top: 0;
             padding-bottom: 0;
         }
+
+        #dragzone.alert-success {
+            color: #3c763d;
+            background-color: #dff0d8;
+            border-color: #d6e9c6;
+        }
+
+        #btn-remove-image {
+            position: absolute;
+            top: 6px;
+            left: -18px;
+        }
+
+            #btn-remove-image i {
+                font-size: 1.5em;
+                color: #666;
+            }
+
+                #btn-remove-image i:hover {
+                    color: #333;
+                }
     </style>
 }
 <br />
@@ -24,9 +45,20 @@
                 <textarea id="txtcont" placeholder="Input your message here" class="form-control" ng-model="msg"></textarea>
             </div>
             <div class="form-group">
-                @*<label for="exampleInputFile">File input</label>*@
-                <input type="file" id="exampleInputFile">
-                @*<p class="help-block">Example block-level help text here.</p>*@
+                <!-- uploader start -->
+                <div class="hidden-xs">
+                    <div ng-file-drop="onFileSelect($files)" ng-file-drag-over-class="alert-success"
+                         ng-show="dropSupported" class="alert alert-warning" id="dragzone">drop files here</div>
+                    <div ng-file-drop-available="dropSupported=true"
+                         ng-show="!dropSupported">HTML5 Drop File is not supported!</div>
+                </div>
+                <input type="file" ng-file-select="onFileSelect($files)" class="visible-xs" />
+                <div class="progress" ng-show="uploading">
+                    <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="{{progress}}" aria-valuemin="0" aria-valuemax="100" ng-style="{width: progress+'%'}">
+                        <span class="sr-only">{{progress}}% Complete (success)</span>
+                    </div>
+                </div>
+                <!-- uploader end-->
             </div>
             <ul class="list-unstyled">
                 <li class="checkbox" ng-repeat="(key,site) in sites" ng-mouseenter="showAction($index)" ng-mouseleave="showAction(-1)">
@@ -40,14 +72,22 @@
             <div class="well well-sm text-muted text-center" ng-show="!sites">loading sns data...</div>
             <div class="text-right">
                 <span><strong>{{140-msg.length}}</strong>&nbsp;left&nbsp;</span>
-                <button type="submit" class="btn btn-primary pull-right"><i class="glyphicon glyphicon-edit"></i> Submit</button>
+                <button type="submit" class="btn btn-primary pull-right" ng-disabled="{{commiting}}"><i class="glyphicon glyphicon-edit"></i> Submit</button>
             </div>
-            <div ng-file-drop="onFileSelect($files)" ng-file-drag-over-class="alert-success"
-                 ng-show="dropSupported" class="alert" id="dragzone">drop files here</div>
-            <div ng-file-drop-available="dropSupported=true"
-                 ng-show="!dropSupported">HTML5 Drop File is not supported!</div>
-            <button ng-click="upload.abort()">Cancel Upload</button>
         </form>
+        @*<button ng-click="upload.abort()">Cancel Upload</button>*@
+        <div ng-show="file">
+            <hr />
+            <div class="text-muted">Console:</div>
+            <div class="well well-sm">{{file}}</div>
+            <div class="text-muted" ng-show="dataurl" style="position: relative;">
+                Thumbnail:
+                <button class="btn btn-link" id="btn-remove-image" ng-click="removeThumbnail()"><i class="glyphicon glyphicon-remove-circle"></i></button>
+                <div>
+                    <img ng-show="dataurl" ng-src="{{dataurl}}" class="img-responsive img-thumbnail" alt="Responsive image" />
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 @section headjs{
@@ -66,9 +106,6 @@
                 };
                 $scope.goAuth = function (url) {
                     location.href = url;
-                };
-                $scope.submit = function () {
-
                 };
                 mySrv.getUserSiteList().success(function (data, status) {
                     $scope.sites = {
@@ -90,34 +127,65 @@
                 $scope.onFileSelect = function ($files) {
                     //$files: an array of files selected, each file has name, size, and type.
                     //for (var i = 0; i < $files.length; i++) {
-                        var file = $files[0];
-                        $scope.upload = $upload.upload({
-                            url: '/file', //upload.php script, node.js route, or servlet url
-                            method: 'POST',
-                            //headers: {'headerKey': 'headerValue'},
-                            //withCredentials: true,
-                            //data: { myObj: $scope.myModelObj },
-                            file: file,
-                            //file: $files, //upload multiple files, this feature only works in HTML5 FromData browsers
-                            /* set file formData name for 'Content-Desposition' header. Default: 'file' */
-                            //fileFormDataName: myFile, //OR for HTML5 multiple upload only a list: ['name1', 'name2', ...]
-                            /* customize how data is added to formData. See #40#issuecomment-28612000 for example */
-                            //formDataAppender: function(formData, key, val){} //#40#issuecomment-28612000
-                        }).progress(function (evt) {
-                            console.log('percent: ' + parseInt(100.0 * evt.loaded / evt.total));
-                        }).success(function (data, status, headers, config) {
-                            // file is uploaded successfully
-                            console.log(data);
+                    var file = $files[0];
+                    $scope.file = file;
+                    if (file.type.indexOf('image') === -1 || !/(jpeg|jpg|png|gif)$/.test(file.name)) {
+                        mySrv.error('image files only(.jpg, .gif, .png)');
+                        return;
+                    }
+                    $scope.uploading = true;
+                    if (window.FileReader) {
+                        var reader = new FileReader();
+                        reader.readAsDataURL(file);
+                        reader.onload = function (e) {
+                            $scope.dataurl = e.target.result;
+                        };
+                    }
+                    $scope.upload = $upload.upload({
+                        url: '/execute/uploadfile', //upload.php script, node.js route, or servlet url
+                        method: 'POST',
+                        file: file,
+                    }).progress(function (evt) {
+                        $scope.progress = parseInt(100.0 * evt.loaded / evt.total);
+                    }).success(function (data, status, headers, config) {
+                        // file uploaded successful
+                    }).error(function (data, status, headers, config) {
+                        mySrv.error(data);
+                    }).finally(function () {
+                        $scope.uploading = false;
+                    });
+                };
+                $scope.removeThumbnail = function () {
+                    mySrv.removeThumbnail().finally(function () {
+                        $scope.file = null;
+                        $scope.dataurl = null;
+                    });
+                };
+                $scope.submit = function () {
+                    $scope.commiting = true;
+                    var url = '/execute/post';
+                    if ($scope.file) url = '/execute/postwithimage';
+                    $(console.log($scope.file));
+                    mySrv.dopost(url, { msg: $scope.msg })
+                        .success(function (d) {
+                            console.log(d);
+                        }).error(function (d) {
+                            mySrv.error(d);
+                        }).finally(function () {
+                            $scope.commiting = false;
                         });
-                        //.error(...)
-                        //.then(success, error, progress);
-                    //}
                 };
             }]);
         app.service('mySrv', ['$rootScope', '$http', '$timeout', function ($rootScope, $http, $timeout) {
             var self = this;
             self.getUserSiteList = function () {
                 return $http.get('/api/site');
+            };
+            self.removeThumbnail = function () {
+                return $http.post('/execute/deletefile');
+            };
+            self.dopost = function (url, data) {
+                return $http.post(url, data);
             };
             self.error = function (msg) {
                 $rootScope.errMsg = msg;
@@ -129,19 +197,11 @@
             };
             return self;
         }]);
-        $(function() {
-            //$("#dragzone").on('dragover', function(e) {
-            //    e.preventDefault();
-            //    e.stopPropagation();
-            //    $(this).removeClass("alert-warning");
-            //}).on('dragleave', function (e) {
-            //    e.preventDefault();
-            //    e.stopPropagation();
-            //    $(this).addClass("alert-warning");
-            //}).on('mouseleave', function (e) {
-            //    e.preventDefault();
-            //    e.stopPropagation();
-            //    $(this).addClass("alert-warning");
+        $(function () {
+            //$("#txtcont").on('focus', function() {
+            //    $(this).height(100);
+            //}).on('blur', function () {
+            //    $(this).height('auto');
             //});
         });
     </script>

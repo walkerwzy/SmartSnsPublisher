@@ -21,12 +21,12 @@ namespace SmartSnsPublisher.Web.Controllers
     [Authorize]
     public class CbController : Controller
     {
-        private readonly SiteInfoRepository repository;
+        private readonly SiteInfoRepository _repository;
         private static Logger logger = LogManager.GetCurrentClassLogger();
 
         public CbController()
         {
-            repository = new SiteInfoRepository();
+            _repository = new SiteInfoRepository();
         }
 
         // sina api callback handler
@@ -51,7 +51,7 @@ namespace SmartSnsPublisher.Web.Controllers
                     SiteName = "sina",
                     UserId = User.Identity.GetUserId()
                 };
-                repository.AddConnectSite(site);
+                _repository.AddConnectSite(site);
                 //return JavaScript("<script>alert('authorization successfull!');window.close();</script>");
                 return Redirect("/");
             }
@@ -66,7 +66,7 @@ namespace SmartSnsPublisher.Web.Controllers
             try
             {
                 var srv = new SinaService();
-                var token = repository.UserConnectedSites(User.Identity.GetUserId())
+                var token = _repository.UserConnectedSites(User.Identity.GetUserId())
                     .Single(m => m.SiteName == "sina").AccessToken;
                 var rtn = await srv.UpdateAsync(token, id);
                 return Content(rtn);
@@ -101,7 +101,7 @@ namespace SmartSnsPublisher.Web.Controllers
                     ba = new byte[fileLength];
                     stream.Read(ba, 0, fileLength);
                 }
-                var token = repository.UserConnectedSites(User.Identity.GetUserId())
+                var token = _repository.UserConnectedSites(User.Identity.GetUserId())
                     .Single(m => m.SiteName == "sina").AccessToken;
                 var rtn = await srv.PostAsync(token, id, ba);
                 return Content(rtn);

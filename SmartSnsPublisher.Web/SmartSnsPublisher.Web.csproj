@@ -220,7 +220,7 @@
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\CbController.cs" />
-    <Compile Include="Controllers\FileController.cs" />
+    <Compile Include="Controllers\ExecuteController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\SiteController.cs" />
     <Compile Include="Controllers\SocialController.cs" />
@@ -231,6 +231,7 @@
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\Entity.cs" />
     <Compile Include="Models\IdentityModels.cs" />
+    <Compile Include="Models\PostStatus.cs" />
     <Compile Include="Models\SiteModels.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repository\SiteInfoRepository.cs" />
