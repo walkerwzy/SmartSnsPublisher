@@ -1,5 +1,6 @@
 ﻿using System.Web;
 using System.Web.Mvc;
+using SmartSnsPublisher.Web.Filters;
 
 namespace SmartSnsPublisher.Web
 {
@@ -7,7 +8,7 @@ namespace SmartSnsPublisher.Web
     {
         public static void RegisterGlobalFilters(GlobalFilterCollection filters)
         {
-            filters.Add(new HandleErrorAttribute());
+            filters.Add(new MyExceptionHandlerAttribute());
         }
     }
 }

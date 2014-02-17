@@ -35,7 +35,7 @@ namespace SmartSnsPublisher.Web.Controllers
             HttpPostedFileBase file = Request.Files[0];
             if (null == file) throw new Exception("no files selected");
             //storefile to disk
-            var filename = GetFileStorePath(User.Identity.GetUserName(), true);
+            var filename = GetFileStorePath(User.Identity.GetUserName());
             file.SaveAs(filename);
             return Json("ok");
         }
@@ -45,7 +45,7 @@ namespace SmartSnsPublisher.Web.Controllers
         [HttpPost]
         public ActionResult DeleteFile()
         {
-            GetFileStorePath(User.Identity.GetUserName(), true);
+            GetFileStorePath(User.Identity.GetUserName());
             return Json("ok");
         }
 
@@ -105,12 +105,13 @@ namespace SmartSnsPublisher.Web.Controllers
             }
         }
 
-        private string GetFileStorePath(string username, bool deleteExist = false)
+        private string GetFileStorePath(string username)
         {
             // use username as filename, thus one people got one image storage.
             //var randomName = Path.GetRandomFileName();
             if (!Directory.Exists(_tempFileDir)) Directory.CreateDirectory(_tempFileDir);
             var fileName = Path.Combine(_tempFileDir, username + ".rb");
+            // appharbor app can only write app_data directory, and can't delete file,
             //if (deleteExist && System.IO.File.Exists(fileName)) System.IO.File.Delete(fileName);
             return fileName;
         }

@@ -96,6 +96,9 @@
 @section scripts{
     <script type="text/javascript">
         var app = angular.module('srv', ['angularLocalStorage', 'angularFileUpload']);
+        app.config(['$httpProvider',function($httpProvider) {
+            $httpProvider.defaults.headers.common["X-Requested-With"] = "XMLHttpRequest";
+        }]);
         app.controller('myCtrl', ['$scope', '$rootScope', 'storage', 'mySrv', '$upload',
             function ($scope, $rootScope, storage, mySrv, $upload) {
                 storage.bind($scope, 'msg');
@@ -122,7 +125,8 @@
                 })
                     .error(function (data, status) {
                         console.log(data);
-                        mySrv.error(data.ExceptionMessage || data.Message);
+                        //mySrv.error(data.ExceptionMessage || data.Message);
+                        mySrv.error(data);
                     });
                 $scope.onFileSelect = function ($files) {
                     //$files: an array of files selected, each file has name, size, and type.
@@ -168,7 +172,7 @@
                     if ($scope.file) url = '/execute/postwithimage';
                     mySrv.dopost(url, { msg: $scope.msg })
                         .success(function (d) {
-                            console.log(d);
+                            mySrv.info("success!");
                         }).error(function (d) {
                             mySrv.error(d);
                         }).finally(function () {
