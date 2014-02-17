@@ -111,7 +111,7 @@ namespace SmartSnsPublisher.Web.Controllers
             //var randomName = Path.GetRandomFileName();
             if (!Directory.Exists(_tempFileDir)) Directory.CreateDirectory(_tempFileDir);
             var fileName = Path.Combine(_tempFileDir, username + ".rb");
-            if (deleteExist && System.IO.File.Exists(fileName)) System.IO.File.Delete(fileName);
+            //if (deleteExist && System.IO.File.Exists(fileName)) System.IO.File.Delete(fileName);
             return fileName;
         }
 
