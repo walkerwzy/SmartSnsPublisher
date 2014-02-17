@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
@@ -21,7 +18,7 @@ namespace SmartSnsPublisher.Web.Controllers
     public class ExecuteController : Controller
     {
         private readonly SiteInfoRepository _repository;
-        private const string PicSessionkey = "_postedFile";
+        private const string PicSessionkey = "_postedFileDir";
         private readonly string _tempFileDir;
 
         public ExecuteController()
@@ -35,13 +32,11 @@ namespace SmartSnsPublisher.Web.Controllers
         [HttpPost]
         public ActionResult UploadFile()
         {
-            DeleteSessionFile();
             HttpPostedFileBase file = Request.Files[0];
             if (null == file) throw new Exception("no files selected");
             //storefile to disk
-            var filename = getFileStorePath();
+            var filename = GetFileStorePath(User.Identity.GetUserName(), true);
             file.SaveAs(filename);
-            Session[PicSessionkey] = filename;
             return Json("ok");
         }
 
@@ -50,8 +45,7 @@ namespace SmartSnsPublisher.Web.Controllers
         [HttpPost]
         public ActionResult DeleteFile()
         {
-            Session.Remove(PicSessionkey);
-            Session.Abandon();
+            GetFileStorePath(User.Identity.GetUserName(), true);
             return Json("ok");
         }
 
@@ -83,70 +77,53 @@ namespace SmartSnsPublisher.Web.Controllers
         [HttpPost]
         public async Task<ActionResult> PostWithImage(string msg)
         {
+            var userid = User.Identity.GetUserId();
+            var username = User.Identity.GetUserName();
+            var filename = GetFileStorePath(username);
             try
             {
-                var userid = User.Identity.GetUserId();
-                byte[] buffer = await GetFileStreamFormDisk();
+                byte[] buffer = await GetFileStreamFormDisk(filename);
 
-                //return await CreateAsyncResult("aaa");
                 // async post to sina
                 var sina = new SinaService();
-                var token = _repository.UserConnectedSites(userid)
-                    .Single(m => m.SiteName == "sina").AccessToken;
+                var token = _repository.UserConnectedSites(userid).Single(m => m.SiteName == "sina").AccessToken;
                 var rtn = await sina.PostAsync(token, msg, buffer, Tools.GetRealIp());
-                var sinaStatus = new PostStatus {SiteName = "sina", Message = rtn};
+                var sinaStatus = new PostStatus { SiteName = "sina", Message = rtn };
 
-                // async post to qq
+                 //async post to qq
 
-                // async post to fanfou
+                 //async post to fanfou
 
-                var col = new List<PostStatus> {sinaStatus};
+                var col = new List<PostStatus> { sinaStatus };
 
                 return Json(col);
             }
             finally
             {
-                DeleteSessionFile();
+                // delete used files
+                fileOP.Delete(filename);
             }
         }
 
-        private async Task<ActionResult> CreateAsyncResult(string message)
+        private string GetFileStorePath(string username, bool deleteExist = false)
         {
-            return await Task.Run(() => Json(new { error = "action failure: " + message }));
-        }
-
-        private string getFileStorePath()
-        {
-            var randomName = Path.GetRandomFileName();
+            // use username as filename, thus one people got one image storage.
+            //var randomName = Path.GetRandomFileName();
             if (!Directory.Exists(_tempFileDir)) Directory.CreateDirectory(_tempFileDir);
-            var fileName = Path.Combine(_tempFileDir, randomName);
-            if (System.IO.File.Exists(fileName)) System.IO.File.Delete(fileName);
+            var fileName = Path.Combine(_tempFileDir, username + ".rb");
+            if (deleteExist && System.IO.File.Exists(fileName)) System.IO.File.Delete(fileName);
             return fileName;
         }
 
-        private async Task<byte[]> GetFileStreamFormDisk()
+        private async Task<byte[]> GetFileStreamFormDisk(string filename)
         {
-            var fileName = Session[PicSessionkey] as string;
-            if (string.IsNullOrEmpty(fileName)) throw new Exception("file upload fail");
-            using (var stream = fileOP.OpenRead(fileName))
+            using (var stream = fileOP.OpenRead(filename))
             {
                 var length = (int)stream.Length;
                 var buffer = new byte[length];
                 await stream.ReadAsync(buffer, 0, length);
                 return buffer;
             }
-        }
-
-        /// <summary>
-        /// 确保session之前上传的图片删除了
-        /// </summary>
-        private void DeleteSessionFile()
-        {
-            var fileName = Session[PicSessionkey] as string;
-            if (string.IsNullOrEmpty(fileName)) return;
-            if (fileOP.Exists(fileName)) fileOP.Delete(fileName);
-            Session.Remove(PicSessionkey);
-            Session.Abandon();
         }
     }
 }

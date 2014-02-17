@@ -153,6 +153,7 @@
                         mySrv.error(data);
                     }).finally(function () {
                         $scope.uploading = false;
+                        $scope.progress = 0;
                     });
                 };
                 $scope.removeThumbnail = function () {
@@ -165,7 +166,6 @@
                     $scope.commiting = true;
                     var url = '/execute/post';
                     if ($scope.file) url = '/execute/postwithimage';
-                    $(console.log($scope.file));
                     mySrv.dopost(url, { msg: $scope.msg })
                         .success(function (d) {
                             console.log(d);
