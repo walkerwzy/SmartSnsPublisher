@@ -17,16 +17,17 @@ using fileOP = System.IO.File;
 
 namespace SmartSnsPublisher.Web.Controllers
 {
-    [System.Web.Mvc.Authorize]
+    [Authorize]
     public class ExecuteController : Controller
     {
         private readonly SiteInfoRepository _repository;
         private const string PicSessionkey = "_postedFile";
-        private const string TempFileDir = "~/Upload";
+        private readonly string _tempFileDir;
 
         public ExecuteController()
         {
             _repository = new SiteInfoRepository();
+            _tempFileDir = AppDomain.CurrentDomain.GetData("DataDirectory").ToString();
         }
 
         //
@@ -116,10 +117,9 @@ namespace SmartSnsPublisher.Web.Controllers
 
         private string getFileStorePath()
         {
-            var physicDir = Server.MapPath(TempFileDir);
             var randomName = Path.GetRandomFileName();
-            if (!Directory.Exists(physicDir)) Directory.CreateDirectory(physicDir);
-            var fileName = Path.Combine(physicDir, randomName);
+            if (!Directory.Exists(_tempFileDir)) Directory.CreateDirectory(_tempFileDir);
+            var fileName = Path.Combine(_tempFileDir, randomName);
             if (System.IO.File.Exists(fileName)) System.IO.File.Delete(fileName);
             return fileName;
         }
