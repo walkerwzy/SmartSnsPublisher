@@ -21,8 +21,7 @@ namespace SmartSnsPublisher.Web.Models
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
-            Database.SetInitializer(
-                new MigrateDatabaseToLatestVersion<SiteDbContext, Migrations.Configuration>());
+            Database.SetInitializer(new MigrateDatabaseToLatestVersion<SiteDbContext, Migrations.Configuration>());
             base.OnModelCreating(modelBuilder);
         }
     }
