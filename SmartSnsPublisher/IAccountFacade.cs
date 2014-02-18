@@ -12,7 +12,6 @@ namespace SmartSnsPublisher
 
         #region 授权
 
-
         /// <summary>
         /// 从用户获取授权
         /// </summary>

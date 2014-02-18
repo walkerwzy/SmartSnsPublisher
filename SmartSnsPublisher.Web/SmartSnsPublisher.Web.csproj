@@ -225,6 +225,7 @@
     <Compile Include="Controllers\SiteController.cs" />
     <Compile Include="Controllers\SocialController.cs" />
     <Compile Include="Filters\MyExceptionHandlerAttribute.cs" />
+    <Compile Include="Filters\MyValidateAntiForgeryTokenAttribute.cs" />
     <Compile Include="Filters\MyWebAPIExceptionHandlerAttribute.cs" />
     <Compile Include="GlimpseSecurityPolicy.cs" />
     <Compile Include="Global.asax.cs">

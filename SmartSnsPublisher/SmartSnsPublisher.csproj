@@ -63,7 +63,9 @@
     <Compile Include="Entity\SinaAccessToken.cs" />
     <Compile Include="IAccountFacade.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Service\TencentService.cs" />
     <Compile Include="Service\SinaService.cs" />
+    <Compile Include="Utility\Common.cs" />
     <Compile Include="Utility\HelperDictionary.cs" />
     <Compile Include="Utility\HelperFileInfo.cs" />
     <Compile Include="Utility\HelperLogger.cs" />

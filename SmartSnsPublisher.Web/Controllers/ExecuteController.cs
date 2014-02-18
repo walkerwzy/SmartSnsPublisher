@@ -4,8 +4,10 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
+using System.Web.Helpers;
 using System.Web.Mvc;
 using SmartSnsPublisher.Service;
+using SmartSnsPublisher.Web.Filters;
 using SmartSnsPublisher.Web.Models;
 using SmartSnsPublisher.Web.Repository;
 using Microsoft.AspNet.Identity;
@@ -30,6 +32,7 @@ namespace SmartSnsPublisher.Web.Controllers
         //
         // POST: /execute/uploadfile/
         [HttpPost]
+        [MyValidateAntiForgeryToken]
         public ActionResult UploadFile()
         {
             HttpPostedFileBase file = Request.Files[0];
@@ -43,6 +46,7 @@ namespace SmartSnsPublisher.Web.Controllers
         //
         // POST: /execute/deletefile
         [HttpPost]
+        [MyValidateAntiForgeryToken]
         public ActionResult DeleteFile()
         {
             GetFileStorePath(User.Identity.GetUserName());
@@ -52,6 +56,7 @@ namespace SmartSnsPublisher.Web.Controllers
         // 
         // POST: /execute/post
         [HttpPost]
+        [MyValidateAntiForgeryToken]
         public async Task<ActionResult> Post(string msg)
         {
             var userid = User.Identity.GetUserId();
@@ -75,6 +80,7 @@ namespace SmartSnsPublisher.Web.Controllers
         // 
         // POST: /execute/postwithimage
         [HttpPost]
+        [MyValidateAntiForgeryToken]
         public async Task<ActionResult> PostWithImage(string msg)
         {
             var userid = User.Identity.GetUserId();
@@ -109,7 +115,7 @@ namespace SmartSnsPublisher.Web.Controllers
         {
             // use username as filename, thus one people got one image storage.
             //var randomName = Path.GetRandomFileName();
-            if (!Directory.Exists(_tempFileDir)) Directory.CreateDirectory(_tempFileDir);
+            //if (!Directory.Exists(_tempFileDir)) Directory.CreateDirectory(_tempFileDir);
             var fileName = Path.Combine(_tempFileDir, username + ".rb");
             // appharbor app can only write app_data directory, and can't delete file,
             //if (deleteExist && System.IO.File.Exists(fileName)) System.IO.File.Delete(fileName);
