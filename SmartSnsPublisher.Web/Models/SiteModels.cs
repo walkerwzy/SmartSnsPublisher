@@ -18,6 +18,13 @@ namespace SmartSnsPublisher.Web.Models
         }
 
         public DbSet<SiteInfo> Sites { get; set; }
+
+        protected override void OnModelCreating(DbModelBuilder modelBuilder)
+        {
+            Database.SetInitializer(
+                new MigrateDatabaseToLatestVersion<SiteDbContext, Migrations.Configuration>());
+            base.OnModelCreating(modelBuilder);
+        }
     }
 
 
