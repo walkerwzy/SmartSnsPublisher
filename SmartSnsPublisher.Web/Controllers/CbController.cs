@@ -45,7 +45,7 @@ namespace SmartSnsPublisher.Web.Controllers
                         srv = new SinaService();
                         break;
                     case "qq":
-                        srv=new TencentService();
+                        srv = new TencentService();
                         break;
                     default:
                         throw new Exception("bad callback");
@@ -57,8 +57,10 @@ namespace SmartSnsPublisher.Web.Controllers
                 var site = new SiteInfo
                 {
                     AccessToken = token.AccessToken,
+                    RefreshToken = token.RefreshToken,
                     ExpireDate = DateTime.UtcNow.AddHours(8).AddSeconds(token.Expire),
                     SocialId = token.UserId,
+                    SocilaName = token.UserName,
                     SiteName = sitename,
                     UserId = User.Identity.GetUserId()
                 };
