@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -32,6 +33,42 @@ namespace SmartSnsPublisher.Utility
             }
 
             return postData.ToString();
+        }
+
+        public static string QueryStringToJson(this string query)
+        {
+            query = query.TrimStart('?');
+            var kvs = query.Split('&');
+            if (kvs.Length == 1)
+            {
+                var kvp = kvs[0].Split('=');
+                if (kvp.Length == 2) return string.Format(@"{{""{0}"":""{1}""}}", kvp[0], kvp[1]);
+                return "{}";
+            }
+            var builder = new StringBuilder("{");
+            //format: {"name":"value","name2":"value2"}
+            const string format = "\"{0}\":\"{1}\"";
+            foreach (var pair in kvs.Select(kv => kv.Split('=')))
+            {
+                if (pair.Length == 2) builder.AppendFormat(format, pair[0], pair[1]);
+                builder.Append(",");
+            }
+            return builder.ToString().TrimEnd(',') + "}";
+        }
+
+        public static IDictionary<string, string> QueryStringToDict(this string query)
+        {
+            query = query.TrimStart('?');
+            var kvs = query.Split('&');
+            if (kvs.Length == 1)
+            {
+                var kvp = kvs[0].Split('=');
+                if (kvp.Length == 2) return new Dictionary<string, string> { { kvp[0], kvp[1] } };
+                return new Dictionary<string, string>();
+            }
+            return kvs.Select(kv => kv.Split('='))
+                    .Where(pair => pair.Length == 2)
+                    .ToDictionary(pair => pair[0], pair => pair[1]);
         }
     }
 }

@@ -19,5 +19,7 @@ namespace SmartSnsPublisher.Entity
         public string RefreshToken { get; set; }
         [JsonProperty("error")]
         public string Error { get; set; }
+        [JsonProperty("name")]
+        public string UserName{get;set;}
     }
 }

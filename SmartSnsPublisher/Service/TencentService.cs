@@ -71,12 +71,17 @@ namespace SmartSnsPublisher.Service
                 await Task.Run(() => HelperLogger.Debug(result));
                 if (result.Contains("errorCode"))
                 {
-                    //errorCode=&errorMsg=
-                    //dynamic rtn = JsonConvert.DeserializeObject(result);
-                    string error = result.Substring(result.LastIndexOf("=") + 2).TrimEnd('\'');
-                    return new TencentAccessToken { Error = error };
+                    //errorCode=xxx&errorMsg=xxx
+                    //var respDict = result.QueryStringToDict();
+                    //string error;
+                    //respDict.TryGetValue("errorMsg", out error);
+                    //return new TencentAccessToken { Error = "error: " + error };
+
+                    // return raw error message instead
+                    return new TencentAccessToken {Error = result};
                 }
                 //access_token=e0586ec1d1e2a8b26e8d5703a99d7eea&expires_in=8035200&refresh_token=3af8d4909d7ebbae08dbbb5825029a92&openid=f3c7e92e9b1f8b065f6154d7f5569981&name=walkerwzy&nick=walker&state=
+                result = result.QueryStringToJson();
                 return !response.IsSuccessStatusCode
                     ? new TencentAccessToken { Error = "Response code: " + response.StatusCode }
                     : JsonConvert.DeserializeObject<TencentAccessToken>(result);

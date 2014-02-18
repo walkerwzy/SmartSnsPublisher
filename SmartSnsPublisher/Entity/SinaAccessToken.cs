@@ -9,8 +9,20 @@ namespace SmartSnsPublisher.Entity
 {
     public class SinaAccessToken : IAccessToken
     {
+        /// <summary>
+        /// sina accesstoken response do not have this property
+        /// </summary>
+        [JsonProperty("name")]
+        public string UserName { get; set; }
+
         [JsonProperty("access_token")]
         public string AccessToken { get; set; }
+        /// <summary>
+        /// sina accesstoken response do not have this property
+        /// </summary>
+        [JsonProperty("refresh_token")]
+        public string RefreshToken { get; set; }
+
         [JsonProperty("remind_in")]
         public int RemindIn { get; set; }
         [JsonProperty("expires_in")]
