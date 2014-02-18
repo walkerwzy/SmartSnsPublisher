@@ -29,10 +29,14 @@ namespace SmartSnsPublisher.Web.Models
         public string SiteName { get; set; }
         [JsonProperty("socialid")]
         public string SocialId { get; set; }
+        [JsonProperty("socialname")]
+        public string SocilaName { get; set; }
         [JsonProperty("des")]
         public string Description { get; set; }
         [JsonProperty("token")]
         public string AccessToken { get; set; }
+        [JsonProperty("refresh")]
+        public string RefreshToken { get; set; }
         [JsonProperty("expires")]
         public DateTime ExpireDate { get; set; }
     }

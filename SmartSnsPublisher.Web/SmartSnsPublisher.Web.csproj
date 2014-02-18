@@ -231,6 +231,15 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201402141543527_InitialCreate.cs" />
+    <Compile Include="Migrations\201402141543527_InitialCreate.Designer.cs">
+      <DependentUpon>201402141543527_InitialCreate.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201402181429554_AddSocialNameAndRefreshToken.cs" />
+    <Compile Include="Migrations\201402181429554_AddSocialNameAndRefreshToken.Designer.cs">
+      <DependentUpon>201402181429554_AddSocialNameAndRefreshToken.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\Entity.cs" />
     <Compile Include="Models\IdentityModels.cs" />
@@ -592,6 +601,14 @@
       <Project>{339e3c4f-869c-4019-8cc3-09e2cdcddda8}</Project>
       <Name>SmartSnsPublisher</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Migrations\201402141543527_InitialCreate.resx">
+      <DependentUpon>201402141543527_InitialCreate.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201402181429554_AddSocialNameAndRefreshToken.resx">
+      <DependentUpon>201402181429554_AddSocialNameAndRefreshToken.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
