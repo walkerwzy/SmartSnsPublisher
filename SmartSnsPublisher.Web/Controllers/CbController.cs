@@ -38,14 +38,17 @@ namespace SmartSnsPublisher.Web.Controllers
             try
             {
                 IAccountFacade srv;
-                string sitename = id.ToLower();
+                var sitename = id.ToLower();
+                string des;
                 switch (sitename)
                 {
                     case "sina":
                         srv = new SinaService();
+                        des = "新浪微博";
                         break;
                     case "qq":
                         srv = new TencentService();
+                        des = "腾讯微博";
                         break;
                     default:
                         throw new Exception("bad callback");
@@ -62,7 +65,8 @@ namespace SmartSnsPublisher.Web.Controllers
                     SocialId = token.UserId,
                     SocilaName = token.UserName,
                     SiteName = sitename,
-                    UserId = User.Identity.GetUserId()
+                    UserId = User.Identity.GetUserId(),
+                    Description = des
                 };
                 _repository.AddConnectSite(site);
                 //return JavaScript("<script>alert('authorization successfull!');window.close();</script>");
