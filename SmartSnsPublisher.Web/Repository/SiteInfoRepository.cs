@@ -32,7 +32,7 @@ namespace SmartSnsPublisher.Web.Repository
         public void AddConnectSite(SiteInfo info)
         {
             //unique userid
-            var old = _context.Sites.Where(m => m.UserId == info.UserId && string.Equals(m.SiteName, info.SiteName, StringComparison.CurrentCultureIgnoreCase));
+            var old = _context.Sites.Where(m => m.UserId == info.UserId && string.Compare(m.SiteName, info.SiteName, StringComparison.OrdinalIgnoreCase) == 0);
             if (old.Any()) _context.Sites.Remove(old.First());
             _context.Sites.Add(info);
             _context.SaveChanges();
