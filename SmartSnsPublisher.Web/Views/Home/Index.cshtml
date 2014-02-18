@@ -131,7 +131,6 @@
                     }
                 });
             }).error(function(data, status) {
-                console.log(data); //mySrv.error(data.ExceptionMessage || data.Message);
                 mySrv.error(data);
             });
             $scope.onFileSelect = function($files) { //$files: an array of files selected, each file has name, size, and type.

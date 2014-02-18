@@ -64,7 +64,7 @@ namespace SmartSnsPublisher.Service
             return Common.GetUrl(param, _auth_resources["authorize"]);
         }
 
-        public async Task<SinaAccessToken> GetAccessTokenAsync(string code)
+        public async Task<IAccessToken> GetAccessTokenAsync(string code)
         {
             //var postData = new List<KeyValuePair<string, string>>
             //{

@@ -13,6 +13,8 @@ namespace SmartSnsPublisher.Web.Controllers
 {
     public class SocialController : Controller
     {
+        private IAccountFacade _srv;
+
         // Gen get oauth2 code url, and then redirect to it
         // GET: /Social/getcode/id
         public ActionResult Getcode(string id)
@@ -22,13 +24,15 @@ namespace SmartSnsPublisher.Web.Controllers
             switch (id)
             {
                 case "sina":
-                    var sinasrv = new SinaService();
-                    url = sinasrv.GetAuthorizationUrl();
+                    _srv=new SinaService();
+                    break;
+                case "qq":
+                    _srv = new TencentService();
                     break;
                 default:
-                    break;
+                    throw new Exception("illage call");
             }
-            return Redirect(url);
+            return Redirect(_srv.GetAuthorizationUrl());
         }
 	}
 }
