@@ -162,7 +162,6 @@ namespace SmartSnsPublisher.Service
                 {"access_token",token},
                 {"scope","all"},
                 //content
-                {"pic","pic"},
                 {"format","json"},//json, xml
                 {"content",Common.encodeURL(message)}, //urlencode withou system.web 
                 {"latitude",latitude},
@@ -183,8 +182,7 @@ namespace SmartSnsPublisher.Service
                 //Content-Disposition: form-data; name=pic; filename=aaa.png\r\nContent-Type: image/png\r\n\r\n
                 string extname;
                 imgContent.Headers.ContentType = MediaTypeHeaderValue.Parse(HelperFileInfo.GetImageMIMEType(attachment, out extname));
-                requestContent.Add(imgContent, "\"" + "pic" + "\"",
-                    "\"" + DateTime.Now.Ticks.ToString("X") + extname + "\"");
+                requestContent.Add(imgContent, "pic", DateTime.Now.Ticks.ToString("X") + extname);
                 using (var task = client.PostAsync(_post_resources["post"], requestContent))
                 {
                     var response = task.Result;
