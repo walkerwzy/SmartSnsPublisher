@@ -15,11 +15,12 @@ namespace SmartSnsPublisher.Entity
         public string AccessToken { get; set; }
         [JsonProperty("expires_in")]
         public int Expire { get; set; }
+
         [JsonProperty("refresh_token")]
         public string RefreshToken { get; set; }
         [JsonProperty("error")]
         public string Error { get; set; }
         [JsonProperty("name")]
-        public string UserName{get;set;}
+        public string UserName { get; set; }
     }
 }

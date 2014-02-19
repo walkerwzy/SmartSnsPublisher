@@ -29,14 +29,14 @@ namespace SmartSnsPublisher
         /// <summary>
         /// 发布一条文字微博
         /// </summary>
-        /// <see cref="http://open.weibo.com/wiki/2/statuses/update"/>
         /// <param name="token"></param>
         /// <param name="message"></param>
         /// <param name="ip"></param>
         /// <param name="latitude"></param>
         /// <param name="longitude"></param>
+        /// <param name="ext">用于个别网站的特定规则，比如腾讯微博，在oauth2.0的规则之外还需要传递openid和openkey</param>
         /// <returns></returns>
-        Task<string> UpdateAsync(string token, string message, string ip, string latitude, string longitude);
+        Task<string> UpdateAsync(string token, string message, string ip = "127.0.0.1", string latitude = "", string longitude = "", dynamic ext = null);
 
         /// <summary>
         /// 发布一条带图片的微博
@@ -47,9 +47,9 @@ namespace SmartSnsPublisher
         /// <param name="ip"></param>
         /// <param name="latitude"></param>
         /// <param name="longitude"></param>
-        /// <see cref="http://open.weibo.com/wiki/2/statuses/upload"/>
+        /// <param name="ext">用于个别网站的特定规则，比如腾讯微博，在oauth2.0的规则之外还需要传递openid和openkey</param>
         /// <returns>"ok" for success, or error string</returns>
-        Task<string> PostAsync(string token, string message, byte[] attachment, string ip = "127.0.0.1", string latitude = "0.0", string longitude = "0.0");
+        Task<string> PostAsync(string token, string message, byte[] attachment, string ip = "127.0.0.1", string latitude = "", string longitude = "", dynamic ext = null);
         /// <summary>
         /// 删除一条微博
         /// </summary>

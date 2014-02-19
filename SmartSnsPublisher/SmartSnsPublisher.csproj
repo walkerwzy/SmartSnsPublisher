@@ -70,7 +70,6 @@
     <Compile Include="Utility\Common.cs" />
     <Compile Include="Utility\HelperDictionary.cs" />
     <Compile Include="Utility\HelperFileInfo.cs" />
-    <Compile Include="Utility\HelperLogger.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

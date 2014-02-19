@@ -7,6 +7,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
+using NLog;
 using SmartSnsPublisher.Entity;
 using SmartSnsPublisher.Utility;
 using Newtonsoft.Json;
@@ -18,6 +19,8 @@ namespace SmartSnsPublisher.Service
         private readonly string _appkey;
         private readonly string _redirectUrl;
         private readonly string _appsecret;
+        private readonly Logger _logger;
+
         private static readonly Dictionary<string, string> _auth_resources = new Dictionary<string, string>
         {
             {"authorize","https://api.weibo.com/oauth2/authorize"}, //请求授权
@@ -45,6 +48,8 @@ namespace SmartSnsPublisher.Service
             _appkey = ConfigurationManager.AppSettings["app:sina:key"];
             _redirectUrl = ConfigurationManager.AppSettings["app:sina:redirect"];
             _appsecret = ConfigurationManager.AppSettings["app:sina:secret"];
+
+            _logger = LogManager.GetCurrentClassLogger();
         }
 
         public string GetAuthorizationUrl()
@@ -89,10 +94,11 @@ namespace SmartSnsPublisher.Service
                 var response = task.Result;
                 //response.EnsureSuccessStatusCode();
                 var result = await response.Content.ReadAsStringAsync();
-                await Task.Run(() => HelperLogger.Debug(result));
+                await Task.Run(() => _logger.Debug(result));
                 if (result.Contains("error_code"))
                 {
                     dynamic rtn = JsonConvert.DeserializeObject(result);
+                    await Task.Run(() => _logger.Error(result));
                     return new SinaAccessToken { Error = rtn.error };
                 }
                 return !response.IsSuccessStatusCode
@@ -110,8 +116,9 @@ namespace SmartSnsPublisher.Service
         /// <param name="ip"></param>
         /// <param name="latitude"></param>
         /// <param name="longitude"></param>
+        /// <param name="ext"></param>
         /// <returns>"ok" for success, or error string</returns>
-        public async Task<string> UpdateAsync(string token, string message, string ip = "127.0.0.1", string latitude = "0.0", string longitude = "0.0")
+        public async Task<string> UpdateAsync(string token, string message, string ip = "127.0.0.1", string latitude = "0.0", string longitude = "0.0", dynamic ext = null)
         {
             var postData = new Dictionary<string, string>
             {
@@ -133,10 +140,10 @@ namespace SmartSnsPublisher.Service
                 var result = await response.Content.ReadAsStringAsync();
                 if (result.Contains("error_code"))
                 {
-                    dynamic rtn = JsonConvert.DeserializeObject(result);
-                    return rtn.error_code + ": " + rtn.error;
+                    await Task.Run(() => _logger.Error(result));
+                    return result;
                 }
-                await Task.Run(() => HelperLogger.Debug(result));
+                await Task.Run(() => _logger.Debug(result));
                 return "ok";
                 /*
                  {"created_at":"Sat Feb 15 02:08:28 +0800 2014","id":3678060027245767,"mid":"3678060027245767","idstr":"3678060027245767","text":"hello+world","source":"<a href=\"http://open.weibo.com\" rel=\"nofollow\">未通过审核应用</a>","favorited":false,"truncated":false,"in_reply_to_status_id":"","in_reply_to_user_id":"","in_reply_to_screen_name":"","pic_urls":[],"geo":null,"user":{"id":1071696872,"idstr":"1071696872","class":1,"screen_name":"walkerwzy","name":"walkerwzy","province":"42","city":"1","location":"湖北 武汉","description":"fuck away...","url":"http://www.dig-music.com","profile_image_url":"http://tp1.sinaimg.cn/1071696872/50/5596300400/1","profile_url":"walkerwzy","domain":"walkerwzy","weihao":"","gender":"m","followers_count":114,"friends_count":202,"statuses_count":1628,"favourites_count":25,"created_at":"Mon Mar 15 18:23:41 +0800 2010","following":false,"allow_all_act_msg":false,"geo_enabled":true,"verified":false,"verified_type":-1,"remark":"","ptype":0,"allow_all_comment":true,"avatar_large":"http://tp1.sinaimg.cn/1071696872/180/5596300400/1","avatar_hd":"http://tp1.sinaimg.cn/1071696872/180/5596300400/1","verified_reason":"","follow_me":false,"online_status":0,"bi_followers_count":24,"lang":"zh-cn","star":0,"mbtype":0,"mbrank":0,"block_word":0},"reposts_count":0,"comments_count":0,"attitudes_count":0,"mlevel":0,"visible":{"type":0,"list_id":0}}
@@ -153,9 +160,10 @@ namespace SmartSnsPublisher.Service
         /// <param name="ip"></param>
         /// <param name="latitude"></param>
         /// <param name="longitude"></param>
+        /// <param name="ext"></param>
         /// <see cref="http://open.weibo.com/wiki/2/statuses/upload"/>
         /// <returns>"ok" for success, or error string</returns>
-        public async Task<string> PostAsync(string token, string message, byte[] attachment, string ip = "127.0.0.1", string latitude = "0.0", string longitude = "0.0")
+        public async Task<string> PostAsync(string token, string message, byte[] attachment, string ip = "127.0.0.1", string latitude = "0.0", string longitude = "0.0", dynamic ext = null)
         {
             var postData = new Dictionary<string, string>
             {
@@ -189,10 +197,10 @@ namespace SmartSnsPublisher.Service
                     var result = await response.Content.ReadAsStringAsync();
                     if (result.Contains("error_code"))
                     {
-                        dynamic rtn = JsonConvert.DeserializeObject(result);
-                        return rtn.error_code + ": " + rtn.error;
+                        await Task.Run(() => _logger.Error(result));
+                        return result;
                     }
-                    await Task.Run(() => HelperLogger.Debug(result));
+                    await Task.Run(() => _logger.Debug(result));
                     return "ok";
                 }
             }

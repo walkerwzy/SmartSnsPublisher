@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Helpers;
 using System.Web.Mvc;
+using Newtonsoft.Json;
 using SmartSnsPublisher.Service;
 using SmartSnsPublisher.Web.Filters;
 using SmartSnsPublisher.Web.Models;
@@ -60,21 +62,36 @@ namespace SmartSnsPublisher.Web.Controllers
         public async Task<ActionResult> Post(string msg)
         {
             var userid = User.Identity.GetUserId();
+            var result = new Dictionary<string, string>();
+            var userSites = await _repository.UserConnectedSites(userid).ToListAsync();
+
+            //todo: should post?
+            //todo: with geoinfo
 
             // async post to sina
-            var sina = new SinaService();
-            var token = _repository.UserConnectedSites(userid)
-                .Single(m => m.SiteName == "sina").AccessToken;
-            var rtn = await sina.UpdateAsync(token, msg, Tools.GetRealIp());
-            var sinaStatus = new PostStatus { SiteName = "sina", Message = rtn };
+            var sina = userSites.SingleOrDefault(m => _checkSite(m.SiteName, "sina"));
+            if (null != sina)
+            {
+                var sinaSrv = new SinaService();
+                var sinaToken = sina.AccessToken;
+                var sinaRtn = await sinaSrv.UpdateAsync(sinaToken, msg, ip: Tools.GetRealIp());
+                result.Add("sina", sinaRtn);
+            }
 
             // async post to qq
+            var qq = userSites.SingleOrDefault(m => _checkSite(m.SiteName, "qq"));
+            if (null != qq)
+            {
+                var qqSrv = new TencentService();
+                var qqToken = qq.AccessToken;
+                var qqExt = JsonConvert.DeserializeObject(qq.ExtInfo);
+                var qqRtn = await qqSrv.UpdateAsync(qqToken, msg, Tools.GetRealIp(), ext: qqExt);
+                result.Add("qq", qqRtn);
+            }
 
             // async post to fanfou
 
-            var col = new List<PostStatus> { sinaStatus };
-
-            return Json(col);
+            return Json(result);
         }
 
         // 
@@ -86,29 +103,34 @@ namespace SmartSnsPublisher.Web.Controllers
             var userid = User.Identity.GetUserId();
             var username = User.Identity.GetUserName();
             var filename = GetFileStorePath(username);
-            try
+            var result = new Dictionary<string, string>();
+            var userSites = await _repository.UserConnectedSites(userid).ToListAsync();
+            byte[] buffer = await GetFileStreamFormDisk(filename);
+
+            // async post to sina
+            var sina = userSites.SingleOrDefault(m => _checkSite(m.SiteName, "sina"));
+            if (null != sina)
             {
-                byte[] buffer = await GetFileStreamFormDisk(filename);
-
-                // async post to sina
-                var sina = new SinaService();
-                var token = _repository.UserConnectedSites(userid).Single(m => m.SiteName == "sina").AccessToken;
-                var rtn = await sina.PostAsync(token, msg, buffer, Tools.GetRealIp());
-                var sinaStatus = new PostStatus { SiteName = "sina", Message = rtn };
-
-                 //async post to qq
-
-                 //async post to fanfou
-
-                var col = new List<PostStatus> { sinaStatus };
-
-                return Json(col);
+                var sinaSrv = new SinaService();
+                var sinaToken = sina.AccessToken;
+                var sinaRtn = await sinaSrv.PostAsync(sinaToken, msg, buffer, ip: Tools.GetRealIp());
+                result.Add("sina", sinaRtn);
             }
-            finally
+
+            //async post to qq
+            var qq = userSites.SingleOrDefault(m => _checkSite(m.SiteName, "qq"));
+            if (null != qq)
             {
-                // delete used files
-                fileOP.Delete(filename);
+                var qqSrv = new TencentService();
+                var qqToken = qq.AccessToken;
+                var qqExt = JsonConvert.DeserializeObject(qq.ExtInfo);
+                var qqRtn = await qqSrv.PostAsync(qqToken, msg, buffer, Tools.GetRealIp(), ext: qqExt);
+                result.Add("qq", qqRtn);
             }
+
+            //async post to fanfou
+
+            return Json(result);
         }
 
         private string GetFileStorePath(string username)
@@ -131,6 +153,11 @@ namespace SmartSnsPublisher.Web.Controllers
                 await stream.ReadAsync(buffer, 0, length);
                 return buffer;
             }
+        }
+
+        private static bool _checkSite(string dbname, string sitename)
+        {
+            return string.Compare(dbname, sitename, StringComparison.OrdinalIgnoreCase) == 0x0;
         }
     }
 }

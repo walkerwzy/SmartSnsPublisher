@@ -45,5 +45,7 @@ namespace SmartSnsPublisher.Web.Models
         public string RefreshToken { get; set; }
         [JsonProperty("expires")]
         public DateTime ExpireDate { get; set; }
+        [JsonProperty("ext")]
+        public string ExtInfo { get; set; }
     }
 }

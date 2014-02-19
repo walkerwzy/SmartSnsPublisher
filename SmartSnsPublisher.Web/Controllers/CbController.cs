@@ -31,7 +31,7 @@ namespace SmartSnsPublisher.Web.Controllers
 
         // sina api callback handler
         // GET: /Cb/process/id?&code=
-        public async Task<ActionResult> Process(string id, string code)
+        public async Task<ActionResult> Process(string id, string code, string openid = "", string openkey = "")
         {
             if (string.IsNullOrEmpty(code.Trim()))
                 throw new Exception("illegal entrance");
@@ -68,6 +68,12 @@ namespace SmartSnsPublisher.Web.Controllers
                     UserId = User.Identity.GetUserId(),
                     Description = des
                 };
+                //腾讯微博需要openid和openkey
+                if (sitename == "qq")
+                {
+                    var ext = string.Format(@"{{""openid"":""{0}"",""openkey"":""{1}""}}", openid, openkey);
+                    site.ExtInfo = ext;
+                }
                 _repository.AddConnectSite(site);
                 //return JavaScript("<script>alert('authorization successfull!');window.close();</script>");
                 return Redirect("/");
