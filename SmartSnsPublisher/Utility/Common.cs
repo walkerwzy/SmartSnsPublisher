@@ -26,7 +26,8 @@ namespace SmartSnsPublisher.Utility
         public static string encodeURL(string source)
         {
             // microsoft encode the blank  to '+', we change it back
-            return WebUtility.UrlEncode(source).Replace("+", " ");
+            //return WebUtility.UrlEncode(source).Replace("+", " ");
+            return source;
         }
     }
 }

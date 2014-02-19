@@ -7,6 +7,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using Microsoft.AspNet.Identity;
+using SmartSnsPublisher.Web.Filters;
 using SmartSnsPublisher.Web.Models;
 using SmartSnsPublisher.Web.Repository;
 
@@ -28,6 +29,17 @@ namespace SmartSnsPublisher.Web.Controllers
         public async Task<IList<SiteInfo>> UserSites()
         {
             return await _repository.UserConnectedSites(User.Identity.GetUserId()).ToListAsync();
+        }
+
+        // unlink user site
+        // Delete: /api/site/id
+        [HttpDelete]
+        [Authorize]
+        [MyValidateAntiForgeryToken]
+        public string DeleteSite(int id)
+        {
+            _repository.RemoveConnectSite(id);
+            return "ok";
         }
     }
 }

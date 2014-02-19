@@ -33,11 +33,9 @@
 <br />
 <div class="container" ng-app="srv">
     <div class=" col-xs-12 col-md-8 col-md-offset-2" ng-controller="myCtrl">
-        <div class="alert alert-danger" ng-show="$root.errMsg">
-            {{$root.errMsg}}
+        <div class="alert alert-danger" ng-show="$root.errMsg" ng-bind-html="$root.errMsg|to_trusted">
         </div>
-        <div class="alert alert-success" ng-show="$root.infoMsg">
-            {{$root.infoMsg}}
+        <div class="alert alert-success" ng-show="$root.infoMsg" ng-bind-html="$root.infoMsg|to_trusted">
         </div>
         <form role="form" ng-submit="submit()">
             <div class="form-group">
@@ -64,8 +62,8 @@
                 <li class="checkbox" ng-repeat="(key,site) in sites" ng-mouseenter="showAction($index)" ng-mouseleave="showAction(-1)">
                     <label><input type="checkbox" name="snsaccount" ng-disabled="{{!site.linked}}" ng-model="site.sync" />&nbsp;{{key}}</label>
                     <span ng-show="cursite==$index" class="pull-right">
-                        <button class="btn btn-link" ng-disabled="{{site.linked}}" ng-click="goAuth(site.url)"><i class="glyphicon glyphicon-link"></i>&nbsp;link</button>
-                        <button class="btn btn-link" ng-disabled="{{!site.linked}}"><i class="glyphicon glyphicon-floppy-remove"></i> unlink</button>
+                        <button type="button" class="btn btn-link" ng-disabled="{{site.linked}}" ng-click="goAuth(site.url)"><i class="glyphicon glyphicon-link"></i>&nbsp;link</button>
+                        <button type="button" class="btn btn-link" ng-disabled="{{!site.linked}}" ng-click="goDelete(site.id)"><i class="glyphicon glyphicon-floppy-remove"></i> unlink</button>
                     </span>
                 </li>
             </ul>
@@ -104,116 +102,137 @@
 @section scripts{
     <script type="text/javascript">
         var app = angular.module('srv', ['angularLocalStorage', 'angularFileUpload']);
-        app.config(['$httpProvider', function($httpProvider) {
+        app.config(['$httpProvider', function ($httpProvider) {
             $httpProvider.defaults.headers.common["X-Requested-With"] = "XMLHttpRequest";
             $httpProvider.defaults.headers.common["RequestVerificationToken"] = '@TokenHeaderValue()';
         }]);
-        app.controller('myCtrl', ['$scope', '$rootScope', 'storage', 'mySrv', '$upload', function($scope, $rootScope, storage, mySrv, $upload) {
-            storage.bind($scope, 'msg');
-            $rootScope.errMsg = '';
-            $scope.cursite = -1;
-            $scope.showAction = function(index) {
-                $scope.cursite = index;
-            };
-            $scope.goAuth = function(url) {
-                location.href = url;
-            };
-            mySrv.getUserSiteList().success(function (data, status) {
-                $scope.sites = {
-                    sina: { linked: false, sync: false, url: '/social/getcode/sina' },
-                    qq: { linked: false, sync: false, url: '/social/getcode/qq' }
-                };
-                angular.forEach(data, function(m) {
-                    var site = $scope.sites[m.sitename];
-                    if (site) {
-                        site.linked = true;
-                        site.sync = true;
-                    }
-                });
-                $scope.siteok = true;
-            }).error(function(data, status) {
-                mySrv.error(data);
-            });
-            $scope.onFileSelect = function($files) { //$files: an array of files selected, each file has name, size, and type.
-                //for (var i = 0; i < $files.length; i++) {
-                var file = $files[0];
-                $scope.file = file;
-                if (file.type.indexOf('image') === -1 || !/(jpeg|jpg|png|gif)$/.test(file.name)) {
-                    mySrv.error('image files only(.jpg, .gif, .png)');
-                    return;
-                }
-                $scope.uploading = true;
-                if (window.FileReader) {
-                    var reader = new FileReader();
-                    reader.readAsDataURL(file);
-                    reader.onload = function(e) {
-                        $scope.dataurl = e.target.result;
-                    };
-                }
-                $scope.upload = $upload.upload({
-                    url: '/execute/uploadfile', //upload.php script, node.js route, or servlet url
-                    method: 'POST',
-                    file: file,
-                }).progress(function(evt) {
-                    $scope.progress = parseInt(100.0 * evt.loaded / evt.total);
-                }).success(function(data, status, headers, config) { // file uploaded successful
-                }).error(function(data, status, headers, config) {
-                    mySrv.error(data);
-                }).finally(function() {
-                    $scope.uploading = false;
-                    $scope.progress = 0;
-                });
-            };
-            $scope.removeThumbnail = function() {
-                mySrv.removeThumbnail().finally(function() {
-                    $scope.file = null;
-                    $scope.dataurl = null;
-                });
-            };
-            $scope.submit = function() {
-                $scope.commiting = true;
-                var url = '/execute/post';
-                if ($scope.file)
-                    url = '/execute/postwithimage';
-                mySrv.dopost(url, { msg: $scope.msg }).success(function(d) {
-                    var msg = '';
-                    angular.forEach(d,function(v, k) {
-                        msg += k + ':' + v + '<br/>';
-                    });
-                    mySrv.info(msg);
-                }).error(function(d) {
-                    mySrv.error(d);
-                }).finally(function() {
-                    $scope.commiting = false;
-                });
+        app.filter('to_trusted', ['$sce', function ($sce) {
+            return function (text) {
+                return $sce.trustAsHtml(text);
             };
         }]);
-        app.service('mySrv', ['$rootScope', '$http', '$timeout', function($rootScope, $http, $timeout) {
+        app.controller('myCtrl', ['$scope', '$rootScope', 'storage', 'mySrv', '$upload',
+            function ($scope, $rootScope, storage, mySrv, $upload) {
+                storage.bind($scope, 'msg');
+                $rootScope.errMsg = '';
+                $scope.cursite = -1;
+                $scope.showAction = function (index) {
+                    $scope.cursite = index;
+                };
+                $scope.goAuth = function (url) {
+                    location.href = url;
+                };
+                $scope.goDelete = function (id) {
+                    mySrv.deleteSiteLink(id).success(function () {
+                        init();
+                        mySrv.info('success');
+                    }).error(function (d) {
+                        mySrv.error(d);
+                    });
+                };
+                var init = function () {
+                    mySrv.getUserSiteList().success(function (data, status) {
+                        $scope.sites = {
+                            sina: { linked: false, sync: false, url: '/social/getcode/sina' },
+                            qq: { linked: false, sync: false, url: '/social/getcode/qq' }
+                        };
+                        angular.forEach(data, function (m) {
+                            var site = $scope.sites[m.sitename];
+                            if (site) {
+                                site.linked = true;
+                                site.sync = true;
+                                site.id = m.id;
+                            }
+                        });
+                        $scope.siteok = true;
+                    }).error(function (data, status) {
+                        mySrv.error(data);
+                    });
+                };
+                init();
+                $scope.onFileSelect = function ($files) { //$files: an array of files selected, each file has name, size, and type.
+                    //for (var i = 0; i < $files.length; i++) {
+                    var file = $files[0];
+                    $scope.file = file;
+                    if (file.type.indexOf('image') === -1 || !/(jpeg|jpg|png|gif)$/.test(file.name)) {
+                        mySrv.error('image files only(.jpg, .gif, .png)');
+                        return;
+                    }
+                    $scope.uploading = true;
+                    if (window.FileReader) {
+                        var reader = new FileReader();
+                        reader.readAsDataURL(file);
+                        reader.onload = function (e) {
+                            $scope.dataurl = e.target.result;
+                        };
+                    }
+                    $scope.upload = $upload.upload({
+                        url: '/execute/uploadfile', //upload.php script, node.js route, or servlet url
+                        method: 'POST',
+                        file: file,
+                    }).progress(function (evt) {
+                        $scope.progress = parseInt(100.0 * evt.loaded / evt.total);
+                    }).success(function (data, status, headers, config) { // file uploaded successful
+                    }).error(function (data, status, headers, config) {
+                        mySrv.error(data);
+                    }).finally(function () {
+                        $scope.uploading = false;
+                        $scope.progress = 0;
+                    });
+                };
+                $scope.removeThumbnail = function () {
+                    mySrv.removeThumbnail().finally(function () {
+                        $scope.file = null;
+                        $scope.dataurl = null;
+                    });
+                };
+                $scope.submit = function () {
+                    $scope.commiting = true;
+                    var url = '/execute/post';
+                    if ($scope.file)
+                        url = '/execute/postwithimage';
+                    var sync = '';
+                    angular.forEach($scope.sites, function (v, k) {
+                        sync += v.sync ? k + ',' : '';
+                    });
+                    mySrv.dopost(url, { msg: $scope.msg, sync: sync }).success(function (d) {
+                        var msg = '';
+                        angular.forEach(d, function (v, k) {
+                            msg += k + ':' + v + '<br/>';
+                        });
+                        mySrv.info(msg);
+                        console.log(msg);
+                    }).error(function (d) {
+                        console.log(d);
+                        mySrv.error(d);
+                    }).finally(function () {
+                        $scope.commiting = false;
+                    });
+                };
+            }]);
+        app.service('mySrv', ['$rootScope', '$http', '$timeout', function ($rootScope, $http, $timeout) {
             var self = this;
-            self.getUserSiteList = function() {
+            self.getUserSiteList = function () {
                 return $http.get('/api/site');
             };
-            self.removeThumbnail = function() {
+            self.deleteSiteLink = function (id) {
+                return $http.delete('/api/site/' + id);
+            };
+            self.removeThumbnail = function () {
                 return $http.post('/execute/deletefile');
             };
-            self.dopost = function(url, data) {
+            self.dopost = function (url, data) {
                 return $http.post(url, data);
             };
-            self.error = function(msg) {
+            self.error = function (msg) {
                 $rootScope.errMsg = msg;
-                $timeout(function() { $rootScope.errMsg = ''; }, 10000);
+                $timeout(function () { $rootScope.errMsg = ''; }, 10000);
             };
-            self.info = function(msg) {
+            self.info = function (msg) {
                 $rootScope.infoMsg = msg;
-                $timeout(function() { $rootScope.infoMsg = ''; }, 3000);
+                $timeout(function () { $rootScope.infoMsg = ''; }, 3000);
             };
             return self;
         }]);
-        $(function() { //$("#txtcont").on('focus', function() {
-            //    $(this).height(100);
-            //}).on('blur', function () {
-            //    $(this).height('auto');
-            //});
-        });
     </script>
 }

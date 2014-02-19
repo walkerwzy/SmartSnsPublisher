@@ -29,7 +29,7 @@ namespace SmartSnsPublisher.Web.Models
 
     public class SiteInfo : Entity
     {
-        [JsonProperty("id")]
+        [JsonProperty("uid")]
         public string UserId { get; set; }
         [JsonProperty("sitename")]
         public string SiteName { get; set; }

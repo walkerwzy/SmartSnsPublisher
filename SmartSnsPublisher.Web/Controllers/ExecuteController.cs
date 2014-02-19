@@ -59,18 +59,19 @@ namespace SmartSnsPublisher.Web.Controllers
         // POST: /execute/post
         [HttpPost]
         [MyValidateAntiForgeryToken]
-        public async Task<ActionResult> Post(string msg)
+        public async Task<ActionResult> Post(string msg, string sync)
         {
+            var syncStatus = sync.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+            if (syncStatus.Length == 0) throw new Exception("no account selected");
             var userid = User.Identity.GetUserId();
             var result = new Dictionary<string, string>();
             var userSites = await _repository.UserConnectedSites(userid).ToListAsync();
 
-            //todo: should post?
             //todo: with geoinfo
 
             // async post to sina
             var sina = userSites.SingleOrDefault(m => _checkSite(m.SiteName, "sina"));
-            if (null != sina)
+            if (null != sina || syncStatus.Contains("sina"))
             {
                 var sinaSrv = new SinaService();
                 var sinaToken = sina.AccessToken;
@@ -80,7 +81,7 @@ namespace SmartSnsPublisher.Web.Controllers
 
             // async post to qq
             var qq = userSites.SingleOrDefault(m => _checkSite(m.SiteName, "qq"));
-            if (null != qq)
+            if (null != qq || syncStatus.Contains("qq"))
             {
                 var qqSrv = new TencentService();
                 var qqToken = qq.AccessToken;
@@ -98,8 +99,10 @@ namespace SmartSnsPublisher.Web.Controllers
         // POST: /execute/postwithimage
         [HttpPost]
         [MyValidateAntiForgeryToken]
-        public async Task<ActionResult> PostWithImage(string msg)
+        public async Task<ActionResult> PostWithImage(string msg, string sync)
         {
+            var syncStatus = sync.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+            if(syncStatus.Length==0) throw new Exception("no account selected");
             var userid = User.Identity.GetUserId();
             var username = User.Identity.GetUserName();
             var filename = GetFileStorePath(username);
@@ -109,17 +112,17 @@ namespace SmartSnsPublisher.Web.Controllers
 
             // async post to sina
             var sina = userSites.SingleOrDefault(m => _checkSite(m.SiteName, "sina"));
-            if (null != sina)
+            if (null != sina || syncStatus.Contains("sina"))
             {
                 var sinaSrv = new SinaService();
                 var sinaToken = sina.AccessToken;
-                var sinaRtn = await sinaSrv.PostAsync(sinaToken, msg, buffer, ip: Tools.GetRealIp());
+                var sinaRtn = await sinaSrv.PostAsync(sinaToken, msg, buffer, Tools.GetRealIp());
                 result.Add("sina", sinaRtn);
             }
 
             //async post to qq
             var qq = userSites.SingleOrDefault(m => _checkSite(m.SiteName, "qq"));
-            if (null != qq)
+            if (null != qq || syncStatus.Contains("qq"))
             {
                 var qqSrv = new TencentService();
                 var qqToken = qq.AccessToken;

@@ -75,7 +75,6 @@ namespace SmartSnsPublisher.Web.Controllers
                     site.ExtInfo = ext;
                 }
                 _repository.AddConnectSite(site);
-                //return JavaScript("<script>alert('authorization successfull!');window.close();</script>");
                 return Redirect("/");
             }
             catch (Exception ex)
