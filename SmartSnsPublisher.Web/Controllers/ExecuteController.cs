@@ -71,7 +71,7 @@ namespace SmartSnsPublisher.Web.Controllers
 
             // async post to sina
             var sina = userSites.SingleOrDefault(m => _checkSite(m.SiteName, "sina"));
-            if (null != sina || syncStatus.Contains("sina"))
+            if (null != sina && syncStatus.Contains("sina"))
             {
                 var sinaSrv = new SinaService();
                 var sinaToken = sina.AccessToken;
@@ -81,13 +81,24 @@ namespace SmartSnsPublisher.Web.Controllers
 
             // async post to qq
             var qq = userSites.SingleOrDefault(m => _checkSite(m.SiteName, "qq"));
-            if (null != qq || syncStatus.Contains("qq"))
+            if (null != qq && syncStatus.Contains("qq"))
             {
                 var qqSrv = new TencentService();
                 var qqToken = qq.AccessToken;
                 var qqExt = JsonConvert.DeserializeObject(qq.ExtInfo);
                 var qqRtn = await qqSrv.UpdateAsync(qqToken, msg, Tools.GetRealIp(), ext: qqExt);
                 result.Add("qq", qqRtn);
+            }
+
+            var twitter = userSites.SingleOrDefault(m => _checkSite(m.SiteName, "twitter"));
+            if (null != twitter && syncStatus.Contains(("twitter")))
+            {
+                var twSrv = new TwitterService();
+                var twToken = twitter.AccessToken;
+                dynamic twExt = JsonConvert.DeserializeObject(twitter.ExtInfo);
+                var twRtn = await twSrv.UpdateAsync(twToken, msg, ext: twExt);
+                await Task.Run(() => { });
+                result.Add("twitter", twRtn);
             }
 
             // async post to fanfou
@@ -102,7 +113,7 @@ namespace SmartSnsPublisher.Web.Controllers
         public async Task<ActionResult> PostWithImage(string msg, string sync)
         {
             var syncStatus = sync.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-            if(syncStatus.Length==0) throw new Exception("no account selected");
+            if (syncStatus.Length == 0) throw new Exception("no account selected");
             var userid = User.Identity.GetUserId();
             var username = User.Identity.GetUserName();
             var filename = GetFileStorePath(username);

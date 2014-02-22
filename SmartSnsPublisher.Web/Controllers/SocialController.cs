@@ -19,7 +19,6 @@ namespace SmartSnsPublisher.Web.Controllers
         // GET: /Social/getcode/id
         public ActionResult Getcode(string id)
         {
-            var url = "";
             id = id.ToLower();
             switch (id)
             {
@@ -28,6 +27,9 @@ namespace SmartSnsPublisher.Web.Controllers
                     break;
                 case "qq":
                     _srv = new TencentService();
+                    break;
+                case "twitter":
+                    _srv=new TwitterService();
                     break;
                 default:
                     throw new Exception("illage call");

@@ -30,15 +30,18 @@ namespace SmartSnsPublisher.Web.Controllers
         }
 
         // sina api callback handler
-        // GET: /Cb/process/id?&code=
-        public async Task<ActionResult> Process(string id, string code, string openid = "", string openkey = "")
+        // GET: /Cb/process/id?
+        // code for oauth 2.0
+        // openid, openkey for qq
+        // oauth_token, oauth_verifier for twitter oauth 1.1
+        public async Task<ActionResult> Process(string id, string code = "", string openid = "", string openkey = "", string oauth_token = "", string oauth_verifier = "")
         {
-            if (string.IsNullOrEmpty(code.Trim()))
+            var sitename = id.ToLower();
+            if (id != "twitter" && string.IsNullOrEmpty(code.Trim()))
                 throw new Exception("illegal entrance");
             try
             {
                 IAccountFacade srv;
-                var sitename = id.ToLower();
                 string des;
                 switch (sitename)
                 {
@@ -49,6 +52,11 @@ namespace SmartSnsPublisher.Web.Controllers
                     case "qq":
                         srv = new TencentService();
                         des = "腾讯微博";
+                        break;
+                    case "twitter":
+                        srv = new TwitterService();
+                        des = "twitter";
+                        code = Request.Url.ToString();
                         break;
                     default:
                         throw new Exception("bad callback");
@@ -74,6 +82,11 @@ namespace SmartSnsPublisher.Web.Controllers
                     var ext = string.Format(@"{{""openid"":""{0}"",""openkey"":""{1}""}}", openid, openkey);
                     site.ExtInfo = ext;
                 }
+                else if (sitename == "twitter")
+                {
+                    var ext = string.Format(@"{{""secret"":""{0}""}}", ((TwitterAccessToken) token).AccessTokenSecret);
+                    site.ExtInfo = ext;
+                }
                 _repository.AddConnectSite(site);
                 return Redirect("/");
             }
@@ -82,69 +95,5 @@ namespace SmartSnsPublisher.Web.Controllers
                 return Content(ex.Message);
             }
         }
-
-        //for test
-        //public async Task<ActionResult> Update(string id = "hello world")
-        //{
-        //    try
-        //    {
-        //        var srv = new SinaService();
-        //        var token = _repository.UserConnectedSites(User.Identity.GetUserId())
-        //            .Single(m => m.SiteName == "sina").AccessToken;
-        //        var rtn = await srv.UpdateAsync(token, id);
-        //        return Content(rtn);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        var s = "err:" + ex.Message;
-        //        while (ex.InnerException != null)
-        //        {
-        //            s += ex.Message + "<br/>";
-        //            ex = ex.InnerException;
-        //        }
-        //        return Content(s);
-        //    }
-        //}
-
-        //public async Task<ActionResult> Upload(string id)
-        //{
-        //    try
-        //    {
-        //        id = "upload image test: " + DateTime.Now.Ticks.ToString("x");
-        //        var srv = new SinaService();
-        //        var imgurl = @"c:\users\walker\desktop\test.jpg";
-        //        //using (var img=Image.FromFile(imgurl))
-        //        //{
-        //        //    var ba = new ImageConverter().ConvertTo(img, typeof (byte[]));
-        //        //}
-        //        byte[] ba;
-        //        using (var stream = System.IO.File.OpenRead(imgurl))
-        //        {
-        //            var fileLength = (int)stream.Length;
-        //            ba = new byte[fileLength];
-        //            stream.Read(ba, 0, fileLength);
-        //        }
-        //        var token = _repository.UserConnectedSites(User.Identity.GetUserId())
-        //            .Single(m => m.SiteName == "sina").AccessToken;
-        //        var rtn = await srv.PostAsync(token, id, ba);
-        //        return Content(rtn);
-
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        var s = "err:" + ex.Message;
-        //        while (ex.InnerException != null)
-        //        {
-        //            s += ex.Message + "<br/>";
-        //            ex = ex.InnerException;
-        //        }
-        //        return Content(s);
-        //    }
-        //}
-
-        //private async Task<ActionResult> CreateAsyncResult(string message)
-        //{
-        //    return await Task.Run(() => Content("authorization failure: " + message));
-        //}
     }
 }

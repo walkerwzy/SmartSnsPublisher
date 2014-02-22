@@ -5,28 +5,24 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using NLog;
+using SmartSnsPublisher.Entity;
+using Tweetinvi;
+using TweetinviCore.Events;
+using TweetinviCore.Interfaces.Credentials;
+using TweetinviCore.Interfaces.oAuth;
+using TweetinviCredentials;
+using TweetinviLogic.TwitterEntities;
+using CredentialsCreator = Tweetinvi.CredentialsCreator;
 
 namespace SmartSnsPublisher.Service
 {
-    public class TwitterService:IAccountFacade
+    public class TwitterService : IAccountFacade
     {
         private readonly string _appkey;
         private readonly string _redirectUrl;
         private readonly string _appsecret;
         private readonly Logger _logger;
-
-        private static readonly Dictionary<string, string> _auth_resources = new Dictionary<string, string>
-        {
-            {"authorize","https://api.twitter.com/oauth/request_token"}, //请求授权
-            {"accesstoken","https://api.twitter.com/oauth/authenticate"}, //获取授权
-            {"tokeninfo",""},//授权查询
-            {"revoke",""}//授权回收
-        };
-        private static readonly Dictionary<string, string> _post_resources = new Dictionary<string, string>
-        {
-            {"update","https://open.t.qq.com/api/t/add"}, //post text
-            {"post","https://open.t.qq.com/api/t/add_pic"} //post text with picture
-        };
+        private static ITemporaryCredentials _applicationCredentials;
 
         public TwitterService()
         {
@@ -35,26 +31,55 @@ namespace SmartSnsPublisher.Service
             _appsecret = ConfigurationManager.AppSettings["app:twitter:secret"];
 
             _logger = LogManager.GetCurrentClassLogger();
+
+            //if (_applicationCredentials == null) _applicationCredentials = CredentialsCreator.GenerateApplicationCredentials(_appkey, _appsecret);
         }
 
         public string GetAuthorizationUrl()
         {
-            // Authorization Header:
-            // OAuth oauth_nonce="K7ny27JTpKVsTgdyLdDfmQQWVLERj2zAK5BslRsqyw", oauth_callback="http%3A%2F%2Fmyapp.com%3A3005%2Ftwitter%2Fprocess_callback", oauth_signature_method="HMAC-SHA1", oauth_timestamp="1300228849", oauth_consumer_key="OqEqJeafRSF11jBMStrZz", oauth_signature="Pc%2BMLdv028fxCErFyi8KXFM%2BddU%3D", oauth_version="1.0"
-
-            // Response:
-            // oauth_token=Z6eEdO8MOmk394WozF5oKyuAv855l4Mlqo7hhlSLik&oauth_token_secret=Kd75W4OQfb2oJTV0vzGzeXftVAwgMnEK9MumzYcM&oauth
-            throw new NotImplementedException();
+            return CredentialsCreator.GetAuthorizationURLForCallback(_applicationCredentials, _redirectUrl);
         }
 
-        public Task<Entity.IAccessToken> GetAccessTokenAsync(string code)
+        public async Task<IAccessToken> GetAccessTokenAsync(string code)
         {
-            throw new NotImplementedException();
+            var newCredentials = CredentialsCreator.GetCredentialsFromCallbackURL(code, _applicationCredentials);
+            if (ExceptionHandler.GetExceptions().Any())
+            {
+                var ex = ExceptionHandler.GetLastException();
+                await Task.Run(() => _logger.ErrorException(ex.TwitterDescription, ex.WebException));
+                throw new Exception(ex.TwitterDescription);
+            }
+            IAccessToken token = null;
+            await Task.Run(() =>
+            {
+                token = new TwitterAccessToken
+                {
+                    AccessToken = newCredentials.AccessToken,
+                    AccessTokenSecret = newCredentials.AccessTokenSecret
+                };
+            });
+            TwitterCredentials.ApplicationCredentials = TwitterCredentials.CreateCredentials(
+                newCredentials.AccessToken, newCredentials.AccessTokenSecret, _appkey, _appsecret);
+            return token;
         }
 
-        public Task<string> UpdateAsync(string token, string message, string ip = "127.0.0.1", string latitude = "", string longitude = "", dynamic ext = null)
+        public async Task<string> UpdateAsync(string token, string message, string ip = "127.0.0.1", string latitude = "", string longitude = "", dynamic ext = null)
         {
-            throw new NotImplementedException();
+            if (TwitterCredentials.Credentials == null)
+                TwitterCredentials.Credentials = TwitterCredentials.CreateCredentials(
+                    token,
+                    ext.secret.ToString(),
+                    _appkey,
+                    _appsecret);
+            var twitter = Tweet.CreateTweet(message);
+            await Task.Run(() => { twitter.Publish(); });
+            if (ExceptionHandler.GetExceptions().Any())
+            {
+                var ex = ExceptionHandler.GetLastException();
+                await Task.Run(() => _logger.ErrorException(ex.TwitterDescription, ex.WebException));
+                throw new Exception(ex.TwitterDescription);
+            }
+            return twitter.IsTweetPublished ? "ok" : "fail";
         }
 
         public Task<string> PostAsync(string token, string message, byte[] attachment, string ip = "127.0.0.1", string latitude = "", string longitude = "", dynamic ext = null)

@@ -67,12 +67,12 @@
                     </span>
                 </li>
             </ul>
-            <div class="well well-sm text-muted text-center" ng-show="!sites">loading sns data...</div>
-            <div class="well well-sm text-muted text-center" ng-show="commiting">handling, please wait...</div>
-            <div class="text-right">
+            <div class="text-right" style="overflow:hidden;">
                 <span><strong>{{140-msg.length}}</strong>&nbsp;left&nbsp;</span>
                 <button type="submit" class="btn btn-primary pull-right" ng-disabled="{{commiting || !msg}}" ng-show="siteok"><i class="glyphicon glyphicon-edit"></i> Submit</button>
             </div>
+            <div class="well well-sm text-muted text-center" ng-show="!sites">loading sns data...</div>
+            <div class="well well-sm text-muted text-center" ng-show="commiting">handling, please wait...</div>
         </form>
         @*<button ng-click="upload.abort()">Cancel Upload</button>*@
         <div ng-show="file">
@@ -135,7 +135,8 @@
                     mySrv.getUserSiteList().success(function (data, status) {
                         $scope.sites = {
                             sina: { linked: false, sync: false, url: '/social/getcode/sina' },
-                            qq: { linked: false, sync: false, url: '/social/getcode/qq' }
+                            qq: { linked: false, sync: false, url: '/social/getcode/qq' },
+                            twitter: { linked: false, sync: false, url: '/social/getcode/twitter' }
                         };
                         angular.forEach(data, function (m) {
                             var site = $scope.sites[m.sitename];
@@ -199,7 +200,9 @@
                     mySrv.dopost(url, { msg: $scope.msg, sync: sync }).success(function (d) {
                         var msg = '';
                         angular.forEach(d, function (v, k) {
-                            msg += k + ':' + v + '<br/>';
+                            var cls = "text-success";
+                            if (v != 'ok') cls = "text-danger";
+                            msg = msg + "<span class='" + cls + "'>" + k + ": " + v + "</span><br/>";
                         });
                         mySrv.info(msg);
                         console.log(msg);
