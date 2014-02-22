@@ -68,6 +68,7 @@
                 </li>
             </ul>
             <div class="well well-sm text-muted text-center" ng-show="!sites">loading sns data...</div>
+            <div class="well well-sm text-muted text-center" ng-show="commiting">handling, please wait...</div>
             <div class="text-right">
                 <span><strong>{{140-msg.length}}</strong>&nbsp;left&nbsp;</span>
                 <button type="submit" class="btn btn-primary pull-right" ng-disabled="{{commiting || !msg}}" ng-show="siteok"><i class="glyphicon glyphicon-edit"></i> Submit</button>
