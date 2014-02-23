@@ -53,27 +53,30 @@ namespace SmartSnsPublisher.Service
             IAccessToken token = null;
             await Task.Run(() =>
             {
+                _setCredentials(newCredentials.AccessToken, newCredentials.AccessTokenSecret);
+                var user = User.GetLoggedUser();
                 token = new TwitterAccessToken
                 {
+                    UserId = user.IdStr,
+                    UserName = user.ScreenName,
                     AccessToken = newCredentials.AccessToken,
                     AccessTokenSecret = newCredentials.AccessTokenSecret
                 };
             });
-            TwitterCredentials.ApplicationCredentials = TwitterCredentials.CreateCredentials(
-                newCredentials.AccessToken, newCredentials.AccessTokenSecret, _appkey, _appsecret);
             return token;
         }
 
         public async Task<string> UpdateAsync(string token, string message, string ip = "127.0.0.1", string latitude = "", string longitude = "", dynamic ext = null)
         {
-            if (TwitterCredentials.Credentials == null)
-                TwitterCredentials.Credentials = TwitterCredentials.CreateCredentials(
-                    token,
-                    ext.secret.ToString(),
-                    _appkey,
-                    _appsecret);
+            _setCredentials(token, ext.secret.ToString());
             var twitter = Tweet.CreateTweet(message);
-            await Task.Run(() => { twitter.Publish(); });
+            await Task.Run(() =>
+            {
+                double lat, lon;
+                if (double.TryParse(latitude, out lat) && double.TryParse(longitude, out lon))
+                    twitter.PublishWithGeo(lon, lat);
+                else twitter.Publish();
+            });
             if (ExceptionHandler.GetExceptions().Any())
             {
                 var ex = ExceptionHandler.GetLastException();
@@ -83,14 +86,41 @@ namespace SmartSnsPublisher.Service
             return twitter.IsTweetPublished ? "ok" : "fail";
         }
 
-        public Task<string> PostAsync(string token, string message, byte[] attachment, string ip = "127.0.0.1", string latitude = "", string longitude = "", dynamic ext = null)
+        public async Task<string> PostAsync(string token, string message, byte[] attachment, string ip = "127.0.0.1", string latitude = "", string longitude = "", dynamic ext = null)
         {
-            throw new NotImplementedException();
+            _setCredentials(token, ext.secret.ToString());
+            var twitter = Tweet.CreateTweet(message);
+            await Task.Run(() =>
+            {
+                //todo: upload photo
+                double lat, lon;
+                if (double.TryParse(latitude, out lat) && double.TryParse(longitude, out lon))
+                    twitter.PublishWithGeo(lon, lat);
+                else twitter.Publish();
+            });
+            if (ExceptionHandler.GetExceptions().Any())
+            {
+                var ex = ExceptionHandler.GetLastException();
+                await Task.Run(() => _logger.ErrorException(ex.TwitterDescription, ex.WebException));
+                throw new Exception(ex.TwitterDescription);
+            }
+            return twitter.IsTweetPublished ? "ok" : "fail";
         }
 
         public void Delete()
         {
             throw new NotImplementedException();
         }
+
+        #region helper
+
+        private void _setCredentials(string token, string secret)
+        {
+            if (TwitterCredentials.Credentials == null)
+                TwitterCredentials.Credentials = TwitterCredentials.CreateCredentials(
+                    token, secret, _appkey, _appsecret);
+        }
+
+        #endregion
     }
 }

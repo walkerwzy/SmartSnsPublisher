@@ -123,7 +123,7 @@ namespace SmartSnsPublisher.Web.Controllers
 
             // async post to sina
             var sina = userSites.SingleOrDefault(m => _checkSite(m.SiteName, "sina"));
-            if (null != sina || syncStatus.Contains("sina"))
+            if (null != sina && syncStatus.Contains("sina"))
             {
                 var sinaSrv = new SinaService();
                 var sinaToken = sina.AccessToken;
@@ -133,13 +133,31 @@ namespace SmartSnsPublisher.Web.Controllers
 
             //async post to qq
             var qq = userSites.SingleOrDefault(m => _checkSite(m.SiteName, "qq"));
-            if (null != qq || syncStatus.Contains("qq"))
+            if (null != qq && syncStatus.Contains("qq"))
             {
+#if DEBUG
                 var qqSrv = new TencentService();
                 var qqToken = qq.AccessToken;
                 var qqExt = JsonConvert.DeserializeObject(qq.ExtInfo);
                 var qqRtn = await qqSrv.PostAsync(qqToken, msg, buffer, Tools.GetRealIp(), ext: qqExt);
                 result.Add("qq", qqRtn);
+
+#else
+                result.Add("qq", "not support yet");
+#endif
+            }
+
+            //async post to twitter
+            var twitter = userSites.SingleOrDefault(m => _checkSite(m.SiteName, "twitter"));
+            if (null != twitter && syncStatus.Contains(("twitter")))
+            {
+                //var twSrv = new TwitterService();
+                //var twToken = twitter.AccessToken;
+                //dynamic twExt = JsonConvert.DeserializeObject(twitter.ExtInfo);
+                //var twRtn = await twSrv.PostAsync(twToken, msg, buffer, ext: twExt);
+                //await Task.Run(() => { });
+                //result.Add("twitter", twRtn);
+                result.Add("twitter", "not support yet");
             }
 
             //async post to fanfou

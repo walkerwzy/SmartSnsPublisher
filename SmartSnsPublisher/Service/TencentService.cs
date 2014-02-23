@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -183,6 +184,10 @@ namespace SmartSnsPublisher.Service
                 string extname;
                 imgContent.Headers.ContentType = MediaTypeHeaderValue.Parse(HelperFileInfo.GetImageMIMEType(attachment, out extname));
                 requestContent.Add(imgContent, "pic", DateTime.Now.Ticks.ToString("X") + extname);
+
+                client.DefaultRequestHeaders.ExpectContinue = true;
+                ServicePointManager.SecurityProtocol=SecurityProtocolType.Ssl3;
+
                 using (var task = client.PostAsync(_post_resources["post"], requestContent))
                 {
                     var response = task.Result;
