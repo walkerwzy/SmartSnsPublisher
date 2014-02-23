@@ -40,7 +40,7 @@
         <form role="form" ng-submit="submit()">
             <div class="form-group">
                 <label for="txtcont">Mesage</label>
-                <textarea id="txtcont" placeholder="Input your message here" class="form-control" ng-model="msg" ng-focus="focusStyle={height:'130px'}" ng-blur="focusStyle={}" ng-style="focusStyle"></textarea>
+                <textarea id="txtcont" placeholder="Input your message here" class="form-control" ng-model="msg" ng-focus="focusStyle={height:'130px'}" ng-blur="focusStyle={}" ng-style="focusStyle" ng-keypress="checkSubmit($event)"></textarea>
             </div>
             <div class="form-group">
                 <!-- uploader start -->
@@ -205,13 +205,15 @@
                             msg = msg + "<span class='" + cls + "'>" + k + ": " + v + "</span><br/>";
                         });
                         mySrv.info(msg);
-                        console.log(msg);
                     }).error(function (d) {
                         console.log(d);
                         mySrv.error(d);
                     }).finally(function () {
                         $scope.commiting = false;
                     });
+                };
+                $scope.checkSubmit = function (e) {
+                    if (e.ctrlKey && (e.keyCode == 13 || e.keyCode == 10)) $scope.submit();
                 };
             }]);
         app.service('mySrv', ['$rootScope', '$http', '$timeout', function ($rootScope, $http, $timeout) {

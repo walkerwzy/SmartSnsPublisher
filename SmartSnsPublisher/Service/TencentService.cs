@@ -185,8 +185,8 @@ namespace SmartSnsPublisher.Service
                 imgContent.Headers.ContentType = MediaTypeHeaderValue.Parse(HelperFileInfo.GetImageMIMEType(attachment, out extname));
                 requestContent.Add(imgContent, "pic", DateTime.Now.Ticks.ToString("X") + extname);
 
-                client.DefaultRequestHeaders.ExpectContinue = true;
-                ServicePointManager.SecurityProtocol=SecurityProtocolType.Ssl3;
+                //client.DefaultRequestHeaders.ExpectContinue = true;
+                //ServicePointManager.SecurityProtocol=SecurityProtocolType.Ssl3;
 
                 using (var task = client.PostAsync(_post_resources["post"], requestContent))
                 {
