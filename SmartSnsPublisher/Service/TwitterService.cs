@@ -32,7 +32,7 @@ namespace SmartSnsPublisher.Service
 
             _logger = LogManager.GetCurrentClassLogger();
 
-            //if (_applicationCredentials == null) _applicationCredentials = CredentialsCreator.GenerateApplicationCredentials(_appkey, _appsecret);
+            if (_applicationCredentials == null) _applicationCredentials = CredentialsCreator.GenerateApplicationCredentials(_appkey, _appsecret);
         }
 
         public string GetAuthorizationUrl()
