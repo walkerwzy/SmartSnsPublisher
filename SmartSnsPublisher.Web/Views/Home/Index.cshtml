@@ -152,7 +152,8 @@
                     });
                 };
                 init();
-                $scope.onFileSelect = function ($files) { //$files: an array of files selected, each file has name, size, and type.
+                $scope.onFileSelect = function ($files) {
+                    //$files: an array of files selected, each file has name, size, and type.
                     //for (var i = 0; i < $files.length; i++) {
                     var file = $files[0];
                     $scope.file = file;
