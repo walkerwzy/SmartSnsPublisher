@@ -22,7 +22,7 @@ namespace SmartSnsPublisher.Service
         private readonly string _redirectUrl;
         private readonly string _appsecret;
         private readonly Logger _logger;
-        private static ITemporaryCredentials _applicationCredentials;
+        private static ITemporaryCredentials _tempCredentials;
 
         public TwitterService()
         {
@@ -32,17 +32,18 @@ namespace SmartSnsPublisher.Service
 
             _logger = LogManager.GetCurrentClassLogger();
 
-            if (_applicationCredentials == null) _applicationCredentials = CredentialsCreator.GenerateApplicationCredentials(_appkey, _appsecret);
+            if (_tempCredentials == null) _tempCredentials = CredentialsCreator.GenerateApplicationCredentials(_appkey, _appsecret);
         }
 
         public string GetAuthorizationUrl()
         {
-            return CredentialsCreator.GetAuthorizationURLForCallback(_applicationCredentials, _redirectUrl);
+            return CredentialsCreator.GetAuthorizationURLForCallback(_tempCredentials, _redirectUrl);
         }
 
         public async Task<IAccessToken> GetAccessTokenAsync(string code)
         {
-            var newCredentials = CredentialsCreator.GetCredentialsFromCallbackURL(code, _applicationCredentials);
+            var newCredentials = CredentialsCreator.GetCredentialsFromCallbackURL(code, _tempCredentials);
+            _tempCredentials = null;
             if (ExceptionHandler.GetExceptions().Any())
             {
                 var ex = ExceptionHandler.GetLastException();
