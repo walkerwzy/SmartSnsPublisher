@@ -7,7 +7,7 @@ using NLog;
 
 namespace SmartSnsPublisher.Web.Filters
 {
-    public class MyExceptionHandlerAttribute:HandleErrorAttribute
+    public class MyExceptionHandlerAttribute : HandleErrorAttribute
     {
         private readonly Logger _logger = LogManager.GetCurrentClassLogger();
 
@@ -24,8 +24,8 @@ namespace SmartSnsPublisher.Web.Filters
                 };
                 filterContext.HttpContext.Response.StatusCode = 500;
                 filterContext.Result = result;
+                filterContext.ExceptionHandled = true;
             }
-            filterContext.ExceptionHandled = true;
             base.OnException(filterContext);
         }
     }
