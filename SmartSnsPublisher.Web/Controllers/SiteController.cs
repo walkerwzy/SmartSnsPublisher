@@ -28,6 +28,7 @@ namespace SmartSnsPublisher.Web.Controllers
         [HttpGet]
         public async Task<IList<SiteInfo>> UserSites()
         {
+            System.Threading.Thread.Sleep(10000);
             return await _repository.UserConnectedSites(User.Identity.GetUserId()).ToListAsync();
         }
 

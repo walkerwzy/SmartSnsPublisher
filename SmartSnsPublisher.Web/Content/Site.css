@@ -40,3 +40,67 @@ input[type="checkbox"].input-validation-error {
 .validation-summary-valid {
     display: none;
 }
+
+/*index page*/
+#index-page .checkbox .btn-link {
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+#index-page #dragzone.alert-success {
+    color: #3c763d;
+    background-color: #dff0d8;
+    border-color: #d6e9c6;
+}
+
+#index-page #btn-remove-image {
+    position: absolute;
+    top: 6px;
+    left: -18px;
+}
+
+    #index-page #btn-remove-image i {
+        color: #666;
+        font-size: 1.5em;
+    }
+
+#btn-remove-image i:hover {
+    color: #333;
+}
+
+    @-moz-keyframes pound {
+        from {
+            -moz-transform: none;
+        }
+
+        to {
+            -moz-transform: scale(1.2);
+        }
+    }
+
+    @-webkit-keyframes pound {
+        from {
+            -webkit-transform: none;
+        }
+
+        to {
+            -webkit-transform: scale(1.2);
+        }
+    }
+
+@keyframes pound {
+    from {
+        transform: none;
+    }
+
+    to {
+        transform: scale(1.2);
+    }
+}
+
+.heart {
+    -moz-animation: pound .3s infinite;
+    -o-animation: pound .3s infinite;
+    -webkit-animation: pound .3s infinite;
+    animation: pound .3s infinite;
+}

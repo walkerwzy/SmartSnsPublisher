@@ -1,37 +1,8 @@
 ﻿@{
     ViewBag.Title = "Post here";
 }
-@section css{
-    <style type="text/css">
-        .checkbox .btn-link {
-            padding-top: 0;
-            padding-bottom: 0;
-        }
-
-        #dragzone.alert-success {
-            color: #3c763d;
-            background-color: #dff0d8;
-            border-color: #d6e9c6;
-        }
-
-        #btn-remove-image {
-            position: absolute;
-            top: 6px;
-            left: -18px;
-        }
-
-            #btn-remove-image i {
-                font-size: 1.5em;
-                color: #666;
-            }
-
-                #btn-remove-image i:hover {
-                    color: #333;
-                }
-    </style>
-}
 <br />
-<div class="container" ng-app="srv">
+<div class="container" ng-app="srv" id="index-page">
     <div class=" col-xs-12 col-md-8 col-md-offset-2" ng-controller="myCtrl">
         <div class="alert alert-danger" ng-show="$root.errMsg" ng-bind-html="$root.errMsg|to_trusted">
         </div>
@@ -71,8 +42,8 @@
                 <span><strong>{{140-msg.length}}</strong>&nbsp;left&nbsp;</span>
                 <button type="submit" class="btn btn-primary pull-right" ng-disabled="{{commiting || !msg}}" ng-show="siteok"><i class="glyphicon glyphicon-edit"></i> Submit</button>
             </div>
-            <div class="well well-sm text-muted text-center" ng-show="!sites">loading sns data...</div>
-            <div class="well well-sm text-muted text-center" ng-show="commiting">handling, please wait...</div>
+            <div class="well well-sm text-muted text-center" ng-show="!sites"><i class="heart glyphicon glyphicon-heart"></i>&nbsp;loading sns data...</div>
+            <div class="well well-sm text-muted text-center" ng-show="commiting"><i class="heart glyphicon glyphicon-heart"></i>&nbsp;handling, please wait...</div>
         </form>
         @*<button ng-click="upload.abort()">Cancel Upload</button>*@
         <div ng-show="file">
