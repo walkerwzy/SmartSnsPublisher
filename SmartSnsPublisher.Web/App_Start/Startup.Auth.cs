@@ -1,4 +1,5 @@
-﻿using System.Configuration;
+﻿using System;
+using System.Configuration;
 using Microsoft.AspNet.Identity;
 using Microsoft.Owin;
 using Microsoft.Owin.Security.Cookies;
@@ -15,7 +16,9 @@ namespace SmartSnsPublisher.Web
             app.UseCookieAuthentication(new CookieAuthenticationOptions
             {
                 AuthenticationType = DefaultAuthenticationTypes.ApplicationCookie,
-                LoginPath = new PathString("/Account/Login")
+                LoginPath = new PathString("/Account/Login"),
+                SlidingExpiration = true,
+                ExpireTimeSpan = new TimeSpan(365, 0, 0, 0)
             });
             // Use a cookie to temporarily store information about a user logging in with a third party login provider
             app.UseExternalSignInCookie(DefaultAuthenticationTypes.ExternalCookie);
