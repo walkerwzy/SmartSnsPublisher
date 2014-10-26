@@ -17,7 +17,7 @@ namespace SmartSnsPublisher.Web.Controllers
 
         // Gen get oauth2 code url, and then redirect to it
         // GET: /Social/getcode/id
-        public ActionResult Getcode(string id)
+        public async Task<ActionResult> Getcode(string id)
         {
             id = id.ToLower();
             switch (id)

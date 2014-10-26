@@ -7,12 +7,7 @@ using System.Threading.Tasks;
 using NLog;
 using SmartSnsPublisher.Entity;
 using Tweetinvi;
-using TweetinviCore.Events;
-using TweetinviCore.Interfaces.Credentials;
-using TweetinviCore.Interfaces.oAuth;
-using TweetinviCredentials;
-using TweetinviLogic.TwitterEntities;
-using CredentialsCreator = Tweetinvi.CredentialsCreator;
+using Tweetinvi.Core.Interfaces.Credentials;
 
 namespace SmartSnsPublisher.Service
 {
