@@ -9,7 +9,8 @@ namespace SmartSnsPublisher.Web.Migrations
     {
         public Configuration()
         {
-            AutomaticMigrationsEnabled = false;
+            AutomaticMigrationsEnabled = true;
+            AutomaticMigrationDataLossAllowed = true;
             ContextKey = "SmartSnsPublisher.Web.Models.SiteDbContext";
         }
 
