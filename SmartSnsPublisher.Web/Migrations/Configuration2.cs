@@ -11,7 +11,8 @@ namespace SmartSnsPublisher.Web.Migrations
     {
         public Configuration2()
         {
-            AutomaticMigrationsEnabled = true;
+            AutomaticMigrationsEnabled = false;
+            AutomaticMigrationDataLossAllowed = true;
             ContextKey = "SmartSnsPublisher.Web.Models.SiteDbContext";
         }
 

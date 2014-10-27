@@ -1,0 +1,216 @@
+﻿@{
+    ViewBag.Title = "Post here";
+}
+<br />
+<div class="container" ng-app="srv" id="index-page">
+    <div class=" col-xs-12 col-md-8 col-md-offset-2" ng-controller="myCtrl">
+        <div class="alert alert-danger" ng-show="$root.errMsg" ng-bind-html="$root.errMsg|to_trusted">
+        </div>
+        <div class="alert alert-success" ng-show="$root.infoMsg" ng-bind-html="$root.infoMsg|to_trusted">
+        </div>
+        <form role="form" ng-submit="submit()">
+            <div class="form-group">
+                <label for="txtcont">Mesage</label>
+                <textarea id="txtcont" placeholder="Input your message here" class="form-control" ng-model="msg" ng-focus="focusStyle={height:'130px'}" ng-blur="focusStyle={}" ng-style="focusStyle" ng-keypress="checkSubmit($event)"></textarea>
+            </div>
+            <div class="form-group">
+                <!-- uploader start -->
+                <div class="hidden-xs">
+                    <div ng-file-drop="onFileSelect($files)" ng-file-drag-over-class="alert-success"
+                         ng-show="dropSupported" class="alert alert-warning" id="dragzone">drop files here</div>
+                    <div ng-file-drop-available="dropSupported=true"
+                         ng-show="!dropSupported">HTML5 Drop File is not supported!</div>
+                </div>
+                <input type="file" ng-file-select="onFileSelect($files)" class="visible-xs" />
+                <div class="progress" ng-show="uploading">
+                    <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="{{progress}}" aria-valuemin="0" aria-valuemax="100" ng-style="{width: progress+'%'}">
+                        <span class="sr-only">{{progress}}% Complete (success)</span>
+                    </div>
+                </div>
+                <!-- uploader end-->
+            </div>
+            <ul class="list-unstyled">
+                <li class="checkbox" ng-repeat="(key,site) in sites" ng-mouseenter="showAction($index)" ng-mouseleave="showAction(-1)">
+                    <label><input type="checkbox" name="snsaccount" ng-disabled="{{!site.linked}}" ng-model="site.sync" />&nbsp;{{key}}</label>
+                    <span ng-show="cursite==$index" class="pull-right">
+                        <button type="button" class="btn btn-link" ng-disabled="{{site.linked}}" ng-click="goAuth(site.url)"><i class="glyphicon glyphicon-link"></i>&nbsp;link</button>
+                        <button type="button" class="btn btn-link" ng-disabled="{{!site.linked}}" ng-click="goDelete(site.id)"><i class="glyphicon glyphicon-floppy-remove"></i> unlink</button>
+                    </span>
+                </li>
+            </ul>
+            <div class="text-right" style="overflow:hidden;">
+                <span><strong>{{140-msg.length}}</strong>&nbsp;left&nbsp;</span>
+                <button type="submit" class="btn btn-primary pull-right" ng-disabled="{{commiting || !msg}}" ng-show="siteok"><i class="glyphicon glyphicon-edit"></i> Submit</button>
+            </div>
+            <div class="well well-sm text-muted text-center" ng-show="!sites"><i class="heart glyphicon glyphicon-heart"></i>&nbsp;loading sns data...</div>
+            <div class="well well-sm text-muted text-center" ng-show="commiting"><i class="heart glyphicon glyphicon-heart"></i>&nbsp;handling, please wait...</div>
+        </form>
+        @*<button ng-click="upload.abort()">Cancel Upload</button>*@
+        <div ng-show="file">
+            <hr />
+            <div class="text-muted">Console:</div>
+            <div class="well well-sm">{{file}}</div>
+            <div class="text-muted" ng-show="dataurl" style="position: relative;">
+                Thumbnail:
+                <button class="btn btn-link" id="btn-remove-image" ng-click="removeThumbnail()"><i class="glyphicon glyphicon-remove-circle"></i></button>
+                <div>
+                    <img ng-show="dataurl" ng-src="{{dataurl}}" class="img-responsive img-thumbnail" alt="Responsive image" />
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@functions{
+    public string TokenHeaderValue()
+    {
+        string cookieToken, formToken;
+        AntiForgery.GetTokens(null, out cookieToken, out formToken);
+        return cookieToken + ":" + formToken;
+    }
+}
+@section headjs{
+    @Scripts.Render("~/bundles/angular")
+}
+@section scripts{
+    <script type="text/javascript">
+        var app = angular.module('srv', ['angularLocalStorage', 'angularFileUpload']);
+        app.config(['$httpProvider', function ($httpProvider) {
+            $httpProvider.defaults.headers.common["X-Requested-With"] = "XMLHttpRequest";
+            $httpProvider.defaults.headers.common["RequestVerificationToken"] = '@TokenHeaderValue()';
+        }]);
+        app.filter('to_trusted', ['$sce', function ($sce) {
+            return function (text) {
+                return $sce.trustAsHtml(text);
+            };
+        }]);
+        app.controller('myCtrl', ['$scope', '$rootScope', 'storage', 'mySrv', '$upload',
+            function ($scope, $rootScope, storage, mySrv, $upload) {
+                storage.bind($scope, 'msg');
+                $rootScope.errMsg = '';
+                $scope.cursite = -1;
+                $scope.showAction = function (index) {
+                    $scope.cursite = index;
+                };
+                $scope.goAuth = function (url) {
+                    location.href = url;
+                };
+                $scope.goDelete = function (id) {
+                    mySrv.deleteSiteLink(id).success(function () {
+                        init();
+                        mySrv.info('success');
+                    }).error(function (d) {
+                        mySrv.error(d);
+                    });
+                };
+                var init = function () {
+                    mySrv.getUserSiteList().success(function (data, status) {
+                        $scope.sites = {
+                            sina: { linked: false, sync: false, url: '/social/getcode/sina' },
+                            qq: { linked: false, sync: false, url: '/social/getcode/qq' },
+                            twitter: { linked: false, sync: false, url: '/social/getcode/twitter' }
+                        };
+                        angular.forEach(data, function (m) {
+                            var site = $scope.sites[m.sitename];
+                            if (site) {
+                                site.linked = true;
+                                site.sync = true;
+                                site.id = m.id;
+                            }
+                        });
+                        $scope.siteok = true;
+                    }).error(function (data, status) {
+                        mySrv.error(data);
+                    });
+                };
+                init();
+                $scope.onFileSelect = function ($files) {
+                    //$files: an array of files selected, each file has name, size, and type.
+                    //for (var i = 0; i < $files.length; i++) {
+                    var file = $files[0];
+                    $scope.file = file;
+                    if (file.type.indexOf('image') === -1 || !/(jpeg|jpg|png|gif)$/.test(file.name)) {
+                        mySrv.error('image files only(.jpg, .gif, .png)');
+                        return;
+                    }
+                    $scope.uploading = true;
+                    if (window.FileReader) {
+                        var reader = new FileReader();
+                        reader.readAsDataURL(file);
+                        reader.onload = function (e) {
+                            $scope.dataurl = e.target.result;
+                        };
+                    }
+                    $scope.upload = $upload.upload({
+                        url: '/execute/uploadfile', //upload.php script, node.js route, or servlet url
+                        method: 'POST',
+                        file: file,
+                    }).progress(function (evt) {
+                        $scope.progress = parseInt(100.0 * evt.loaded / evt.total);
+                    }).success(function (data, status, headers, config) { // file uploaded successful
+                    }).error(function (data, status, headers, config) {
+                        mySrv.error(data);
+                    }).finally(function () {
+                        $scope.uploading = false;
+                        $scope.progress = 0;
+                    });
+                };
+                $scope.removeThumbnail = function () {
+                    mySrv.removeThumbnail().finally(function () {
+                        $scope.file = null;
+                        $scope.dataurl = null;
+                    });
+                };
+                $scope.submit = function () {
+                    $scope.commiting = true;
+                    var url = '/execute/post';
+                    if ($scope.file)
+                        url = '/execute/postwithimage';
+                    var sync = '';
+                    angular.forEach($scope.sites, function (v, k) {
+                        sync += v.sync ? k + ',' : '';
+                    });
+                    mySrv.dopost(url, { msg: $scope.msg, sync: sync }).success(function (d) {
+                        var msg = '';
+                        angular.forEach(d, function (v, k) {
+                            var cls = "text-success";
+                            if (v != 'ok') cls = "text-danger";
+                            msg = msg + "<span class='" + cls + "'>" + k + ": " + v + "</span><br/>";
+                        });
+                        mySrv.info(msg);
+                    }).error(function (d) {
+                        console.log(d);
+                        mySrv.error(d);
+                    }).finally(function () {
+                        $scope.commiting = false;
+                    });
+                };
+                $scope.checkSubmit = function (e) {
+                    if (e.ctrlKey && (e.keyCode == 13 || e.keyCode == 10)) $scope.submit();
+                };
+            }]);
+        app.service('mySrv', ['$rootScope', '$http', '$timeout', function ($rootScope, $http, $timeout) {
+            var self = this;
+            self.getUserSiteList = function () {
+                return $http.get('/api/site');
+            };
+            self.deleteSiteLink = function (id) {
+                return $http.delete('/api/site/' + id);
+            };
+            self.removeThumbnail = function () {
+                return $http.post('/execute/deletefile');
+            };
+            self.dopost = function (url, data) {
+                return $http.post(url, data);
+            };
+            self.error = function (msg) {
+                $rootScope.errMsg = msg;
+                $timeout(function () { $rootScope.errMsg = ''; }, 10000);
+            };
+            self.info = function (msg) {
+                $rootScope.infoMsg = msg;
+                $timeout(function () { $rootScope.infoMsg = ''; }, 3000);
+            };
+            return self;
+        }]);
+    </script>
+}

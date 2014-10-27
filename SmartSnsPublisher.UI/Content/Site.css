@@ -1,0 +1,107 @@
+﻿body {
+    padding-top: 50px;
+    padding-bottom: 20px;
+}
+
+/* Set padding to keep content from hitting the edges */
+.body-content {
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+/* Set width on the form input elements since they're 100% wide by default 
+input,
+select,
+textarea {
+    max-width: 280px;
+}*/
+
+
+/* styles for validation helpers */
+.field-validation-error {
+    color: #b94a48;
+}
+
+.field-validation-valid {
+    display: none;
+}
+
+input.input-validation-error {
+    border: 1px solid #b94a48;
+}
+
+input[type="checkbox"].input-validation-error {
+    border: 0 none;
+}
+
+.validation-summary-errors {
+    color: #b94a48;
+}
+
+.validation-summary-valid {
+    display: none;
+}
+
+/*index page*/
+#index-page .checkbox .btn-link {
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+#index-page #dragzone.alert-success {
+    color: #3c763d;
+    background-color: #dff0d8;
+    border-color: #d6e9c6;
+}
+
+#index-page #btn-remove-image {
+    position: absolute;
+    top: 6px;
+    left: -18px;
+}
+
+    #index-page #btn-remove-image i {
+        color: #666;
+        font-size: 1.5em;
+    }
+
+#btn-remove-image i:hover {
+    color: #333;
+}
+
+    @-moz-keyframes pound {
+        from {
+            -moz-transform: none;
+        }
+
+        to {
+            -moz-transform: scale(1.2);
+        }
+    }
+
+    @-webkit-keyframes pound {
+        from {
+            -webkit-transform: none;
+        }
+
+        to {
+            -webkit-transform: scale(1.2);
+        }
+    }
+
+@keyframes pound {
+    from {
+        transform: none;
+    }
+
+    to {
+        transform: scale(1.2);
+    }
+}
+
+.heart {
+    -moz-animation: pound .3s infinite;
+    -o-animation: pound .3s infinite;
+    -webkit-animation: pound .3s infinite;
+    animation: pound .3s infinite;
+}
