@@ -33,9 +33,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Autofac, Version=3.5.0.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
+    <Reference Include="Autofac, Version=3.3.0.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Autofac.3.5.2\lib\net40\Autofac.dll</HintPath>
+      <HintPath>..\packages\Autofac.3.3.1\lib\net40\Autofac.dll</HintPath>
     </Reference>
     <Reference Include="LogentriesCore, Version=2.4.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -80,34 +80,6 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="Tweetinvi, Version=0.9.3.3, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\TweetinviAPI.0.9.3.4\lib\Tweetinvi.dll</HintPath>
-    </Reference>
-    <Reference Include="Tweetinvi.Controllers">
-      <HintPath>..\packages\TweetinviAPI.0.9.3.4\lib\Tweetinvi.Controllers.dll</HintPath>
-    </Reference>
-    <Reference Include="Tweetinvi.Core">
-      <HintPath>..\packages\TweetinviAPI.0.9.3.4\lib\Tweetinvi.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="Tweetinvi.Credentials">
-      <HintPath>..\packages\TweetinviAPI.0.9.3.4\lib\Tweetinvi.Credentials.dll</HintPath>
-    </Reference>
-    <Reference Include="Tweetinvi.Factories">
-      <HintPath>..\packages\TweetinviAPI.0.9.3.4\lib\Tweetinvi.Factories.dll</HintPath>
-    </Reference>
-    <Reference Include="Tweetinvi.Logic">
-      <HintPath>..\packages\TweetinviAPI.0.9.3.4\lib\Tweetinvi.Logic.dll</HintPath>
-    </Reference>
-    <Reference Include="Tweetinvi.Security">
-      <HintPath>..\packages\TweetinviAPI.0.9.3.4\lib\Tweetinvi.Security.dll</HintPath>
-    </Reference>
-    <Reference Include="Tweetinvi.Streams">
-      <HintPath>..\packages\TweetinviAPI.0.9.3.4\lib\Tweetinvi.Streams.dll</HintPath>
-    </Reference>
-    <Reference Include="Tweetinvi.WebLogic">
-      <HintPath>..\packages\TweetinviAPI.0.9.3.4\lib\Tweetinvi.WebLogic.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Entity\IAccessToken.cs" />
